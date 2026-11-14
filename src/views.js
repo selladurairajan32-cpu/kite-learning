@@ -326,6 +326,8 @@ function Maths() {
 const TOPIC_BLURB = {
   fractions: ['Fractions describe parts of a whole. This topic starts with sharing fairly and ends with 11+ exam problems.',
     ['See a fraction as equal parts of a whole', 'Place, compare and simplify fractions', 'Add, subtract, multiply and divide fractions', 'Solve 11+ fraction problems']],
+  area: ['Perimeter is the distance round a shape; area is the space inside it. This topic starts with walking round a rectangle and ends with volume and 11+ problems.',
+    ['Find the perimeter of rectangles', 'Find area by counting squares and multiplying', 'Work with compound shapes and triangles', 'Find volume and surface area']],
 };
 function Topic(id) {
   const t = topicById(id);

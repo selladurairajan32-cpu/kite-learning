@@ -8,10 +8,11 @@ Published at https://claude.ai/artifact/EyFY139G4Hfk6unn2R2ATo
 
 Homepage → log in / create account → who is learning (parent or child) → subjects → Mathematics → Fractions → a lesson.
 
-Two lessons are built, both in Fractions (Foundation):
+Three lessons are built (all Foundation):
 
-1. **Understanding Fractions**: sharing a pizza fairly; the fraction lab.
-2. **Fractions on a Number Line**: Pip the frog crosses from 0 to 1 in equal jumps; the number-line lab.
+1. Fractions · **Understanding Fractions**: sharing a pizza fairly; the fraction lab.
+2. Fractions · **Fractions on a Number Line**: Pip the frog crosses from 0 to 1 in equal jumps; the number-line lab.
+3. Perimeter, Area & Volume · **Perimeter of Rectangles**: Dot the ladybird walks round the edge of a shape; the fence builder. Open it from Mathematics → Perimeter, Area & Volume.
 
 Every lesson has the same five steps (Learn, Explore, Examples, Practise, Mastery check) and a **Watch teacher explain** player at the bottom. A lesson opens when the one before it is mastered; the topic page has a "Preview" link on a locked lesson so reviewers can open it directly.
 
@@ -48,8 +49,8 @@ Copy the shape of `src/lessons/number-line.js`. A lesson file is wrapped in `{ .
 - `intro`: the opening sentence, three goals and three "why it matters" pictures
 - `learn`: the story slides. Each slide has a picture (`viz`) and a list of beats; each beat has the sentence to say, the button label, and an `enter` function that plays its animation
 - `explore`: the hands-on tool (`mount`) and its small challenges (`missions`)
-- `examples`: worked examples revealed one step at a time
-- `practice` and `mastery`: questions (types `pick`, `shade`, `place`, `build`), with hints and a message for each common mistake
+- `examples`: worked examples revealed one step at a time. `ans` is a fraction `[n, d]`, or a measurement `{ v, unit }`
+- `practice` and `mastery`: questions (types `pick`, `shade`, `place`, `build`, `num`), with hints and a message for each common mistake. `num` is a whole-number answer typed on a number pad, with an optional `unit`
 - `skills`: plain names for the skills the questions test
 - `teacher`: what the teacher says and writes, as marks on a 900 × 600 board
 - `canDo`, `passSay`: the sentences on the completion screens

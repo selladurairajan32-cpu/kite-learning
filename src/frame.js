@@ -132,7 +132,9 @@ function renderExamples(el, l) {
       <div class="ex-tabs" role="tablist" aria-label="Examples">${EX.map((_, i) => `<button type="button" role="tab" class="ex-tab" aria-selected="${i === l.ex}" data-action="ex-tab" data-i="${i}">${l.exDone.includes(i) ? icon('check', 16) : ''}Example ${i + 1}</button>`).join('')}</div></div>
     <div class="stage-body two">
       <div class="viz"><div class="build ${ex.stack ? 'is-stack' : ''}"><span id="ex-fig">${ex.view ? ex.view() : fig(ex.fig, { counts: true })}</span>
-        <span class="frac" role="img" aria-label="The fraction being built"><span class="fn ${ex.given ? '' : 'hide'}" id="ex-n">${ex.ans[0]}</span><span class="fbar"></span><span class="fd ${ex.given ? '' : 'hide'}" id="ex-d">${ex.ans[1]}</span></span></div></div>
+        ${Array.isArray(ex.ans)
+          ? `<span class="frac" role="img" aria-label="The fraction being built"><span class="fn ${ex.given ? '' : 'hide'}" id="ex-n">${ex.ans[0]}</span><span class="fbar"></span><span class="fd ${ex.given ? '' : 'hide'}" id="ex-d">${ex.ans[1]}</span></span>`
+          : `<span class="ans-box" role="img" aria-label="The answer"><span class="fn ${ex.given ? '' : 'hide'}" id="ex-n">${ex.ans.v}<small>${ex.ans.unit || ''}</small></span><span id="ex-d" hidden></span></span>`}</div></div>
       <div class="talk"><p class="ex-q">${ex.q}</p><ol class="ex-steps" id="ex-steps" aria-live="polite"></ol></div>
     </div>
     <div class="stage-foot"><button type="button" class="btn btn-quiet" data-action="stage" data-i="1">${icon('left', 18)} Back</button><span></span>
@@ -185,6 +187,7 @@ function renderExamples(el, l) {
      shade  colour parts of a fraction picture: fig, need
      place  tap a mark on a number line: n jumps (w for unequal), at = the right mark
      build  write a fraction with the number pad: ans [n, d]
+     num    type a whole number with the number pad: ans, unit ('cm', 'm', ...)
    Any type can show a picture beside it: fig (a fraction picture) or view() (any drawing). */
 const optHTML = o => o.f ? frac(o.f[0], o.f[1]) : o.fig ? fig(o.fig) : o.html ? o.html() : o.n != null ? `<span class="opt-n">${o.n}</span>` : esc(o.t);
 const optLabel = o => o.f ? `${o.f[0]} over ${o.f[1]}` : o.fig ? figLabel(o.fig) : o.html ? o.label : o.n != null ? String(o.n) : o.t;
@@ -194,7 +197,7 @@ function renderQ(el, l, mode) {
   const def = D(), pr = mode === 'pr', set = pr ? def.practice : def.mastery, st = l[mode];
   if (st.i >= set.length) return pr ? practiceSummary(el, l) : masteryResult(el, l);
   if (!pr && !st.begun) return masteryIntro(el, l);
-  const q = set[st.i], A = { sel: null, on: [], at: null, top: '', bot: '', slot: 'top', tries: 0, hints: 0, done: false };
+  const q = set[st.i], A = { sel: null, on: [], at: null, top: '', bot: '', slot: 'top', val: '', tries: 0, hints: 0, done: false };
   const pips = set.map((_, i) => { const r = pr ? st.log[i] : st.ans[i]; return `<i class="${i === st.i ? 'cur' : r ? ((pr ? r.first : r.ok) ? 'ok' : 'miss') : ''}"></i>`; }).join('');
   const figHTML = q.type === 'shade' ? fig(q.fig, { tap: true }) : q.type === 'place' ? nline({ n: q.n, w: q.w }, { tap: true }) : q.view ? q.view() : q.fig ? fig(q.fig) : '';
   let answer = '';
@@ -203,6 +206,8 @@ function renderQ(el, l, mode) {
   if (q.type === 'place') answer = `<p class="q-help">${icon('tap', 18)} Tap a mark on the line to put the dot there.</p>`;
   if (q.type === 'build') answer = `<div class="buildq"><div class="slots"><button type="button" class="slot-btn top" data-action="q-slot" data-s="top" aria-pressed="true" aria-label="Top number"></button><span class="line"></span><button type="button" class="slot-btn bot" data-action="q-slot" data-s="bot" aria-pressed="false" aria-label="Bottom number"></button></div>
     <div class="pad" role="group" aria-label="Number pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => `<button type="button" data-action="q-pad" data-n="${n}">${n}</button>`).join('')}</div></div>`;
+  if (q.type === 'num') answer = `<div class="numq"><div class="num-show"><span class="num-box" id="num-box" aria-live="polite"></span>${q.unit ? `<span class="num-unit">${q.unit}</span>` : ''}</div>
+    <div class="pad pad-num" role="group" aria-label="Number pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button type="button" data-action="q-digit" data-n="${n}">${n}</button>`).join('')}<button type="button" data-action="q-digit" data-n="del" aria-label="Delete">${icon('left', 20)}</button><button type="button" data-action="q-digit" data-n="0">0</button><button type="button" data-action="q-digit" data-n="clr" aria-label="Clear">${icon('x', 20)}</button></div></div>`;
   const askFast = pr && st.i === 3 && !st.fastAsked && st.log.slice(0, 3).every(r => r && r.first && !r.hints);
   el.innerHTML = `<div class="q">
     <div class="q-top"><span class="q-count">${pr ? 'Step 4 of 5 · Practise' : 'Step 5 of 5 · Mastery check'} · Question ${st.i + 1} of ${set.length}</span><div class="pips" aria-hidden="true">${pips}</div>${listenBtn()}</div>
@@ -214,20 +219,22 @@ function renderQ(el, l, mode) {
     <div class="q-foot">${pr ? `<button type="button" class="btn btn-quiet" data-action="q-hint">${icon('bulb', 18)} Hint</button>` : `<span class="q-help">${icon('info', 18)} No hints in the check. Take your time.</span>`}
       <button type="button" class="btn btn-primary btn-lg" data-action="q-check" id="q-check" disabled>Check</button></div></div>`;
   const check = $('#q-check', el), fbEl = $('#q-fb', el), figSvg = $('#q-fig svg', el);
-  const ready = () => q.type === 'pick' ? A.sel !== null : q.type === 'shade' ? true : q.type === 'place' ? A.at !== null : (A.top !== '' && A.bot !== '');
+  const ready = () => q.type === 'pick' ? A.sel !== null : q.type === 'shade' ? true : q.type === 'place' ? A.at !== null : q.type === 'num' ? A.val !== '' : (A.top !== '' && A.bot !== '');
   const sync = () => { if (!A.done) check.disabled = !ready(); };
   const fb = (kind, title, text, extra = '') => {
     fbEl.innerHTML = `<div class="fb fb-${kind}"><span class="fb-ico">${icon({ good: 'check', oops: 'x', hint: 'bulb', info: 'eye' }[kind], 20)}</span><div><strong>${title}</strong><p>${text}</p>${extra}</div></div>`;
     fbEl.scrollIntoView({ block: 'nearest', behavior: REDUCED ? 'auto' : 'smooth' });
   };
-  const isRight = () => q.type === 'pick' ? A.sel === q.ans : q.type === 'shade' ? A.on.length === q.need : q.type === 'place' ? A.at === q.at : (+A.top === q.ans[0] && +A.bot === q.ans[1]);
-  const wrongMsg = () => q.type === 'pick' ? (q.wrong && q.wrong[A.sel]) : q.type === 'shade' ? (q.wrongFn && q.wrongFn(A.on.length)) : q.type === 'place' ? (q.wrongFn && q.wrongFn(A.at)) : (q.wrongFn && q.wrongFn(+A.top, +A.bot));
+  const isRight = () => q.type === 'pick' ? A.sel === q.ans : q.type === 'shade' ? A.on.length === q.need : q.type === 'place' ? A.at === q.at : q.type === 'num' ? +A.val === q.ans : (+A.top === q.ans[0] && +A.bot === q.ans[1]);
+  const wrongMsg = () => q.type === 'pick' ? (q.wrong && q.wrong[A.sel]) : q.type === 'shade' ? (q.wrongFn && q.wrongFn(A.on.length)) : q.type === 'place' ? (q.wrongFn && q.wrongFn(A.at)) : q.type === 'num' ? (q.wrongFn && q.wrongFn(+A.val)) : (q.wrongFn && q.wrongFn(+A.top, +A.bot));
   const slotDraw = () => $$('.slot-btn', el).forEach(b => { const s = b.dataset.s; b.textContent = A[s]; b.classList.toggle('filled', A[s] !== ''); b.setAttribute('aria-pressed', !A.done && A.slot === s); });
+  const numDraw = () => { const b = $('#num-box', el); if (b) { b.textContent = A.val; b.classList.toggle('filled', A.val !== ''); } };
   const showAnswer = () => {
     if (q.type === 'pick') $$('.opt', el).forEach((o, i) => { if (i === q.ans) { o.classList.add('is-right'); o.insertAdjacentHTML('beforeend', `<span class="tag">${icon('check', 16)}</span>`); } });
     if (q.type === 'shade') $$('#q-fig .part', el).forEach((p, i) => p.classList.toggle('on', i < q.need));
     if (q.type === 'place') setLineMark(figSvg, q.at);
     if (q.type === 'build') { A.top = q.ans[0]; A.bot = q.ans[1]; slotDraw(); }
+    if (q.type === 'num') { A.val = String(q.ans); numDraw(); }
   };
   const finish = ok => {
     A.done = true;
@@ -252,6 +259,12 @@ function renderQ(el, l, mode) {
   stageActs['q-opt'] = b => { if (A.done) return; A.sel = +b.dataset.i; $$('.opt', el).forEach(o => o.setAttribute('aria-pressed', o === b)); sync(); };
   stageActs['q-slot'] = b => { if (A.done) return; A.slot = b.dataset.s; slotDraw(); };
   stageActs['q-pad'] = b => { if (A.done) return; A[A.slot] = +b.dataset.n; if (A.slot === 'top' && A.bot === '') A.slot = 'bot'; slotDraw(); sync(); };
+  stageActs['q-digit'] = b => {
+    if (A.done) return;
+    const n = b.dataset.n;
+    if (n === 'del') A.val = A.val.slice(0, -1); else if (n === 'clr') A.val = ''; else if (A.val.length < 3) A.val = (A.val === '0' ? '' : A.val) + n;
+    numDraw(); sync();
+  };
   stageActs['q-hint'] = () => { if (A.done || !q.hints) return; const h = q.hints[Math.min(A.hints, q.hints.length - 1)]; A.hints++; fb('hint', A.hints === 1 ? 'Hint' : 'Another hint', h); };
   stageActs['q-check'] = () => {
     if (A.done) { st.i++; save(); return renderStage(true); }
@@ -271,6 +284,7 @@ function renderQ(el, l, mode) {
     }
     const msg = wrongMsg() || (q.hints && q.hints[0]) || 'Have another look.';
     if (q.type === 'pick') { const sel = $(`.opt[data-i="${A.sel}"]`, el); if (sel) { sel.classList.add('is-wrong', 'is-out'); sel.setAttribute('aria-pressed', 'false'); sel.insertAdjacentHTML('beforeend', `<span class="tag">${icon('x', 16)}</span>`); } A.sel = null; }
+    if (q.type === 'num') { A.val = ''; numDraw(); }
     fb('oops', 'Not quite. Try again', msg);
     sync();
   };

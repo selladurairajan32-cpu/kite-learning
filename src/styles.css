@@ -913,3 +913,92 @@ svg{display:block}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* =====================================================================
+   Perimeter (Perimeter, Area & Volume, lesson 1 onward)
+   Long sides (length) are orange, short sides (width) are blue, the same
+   pairing as the top and bottom numbers of a fraction.
+   ===================================================================== */
+.pm{width:100%;height:auto;overflow:visible}
+.pm text{font-family:var(--font-body)}
+.pm-grid{fill:none;stroke:var(--b-grid);stroke-width:1.5}
+.pm-grid.soft{stroke-width:1}
+.pm-fill{fill:rgba(39,86,245,.07)}
+.pm-fill.solid{fill:var(--surface)}
+.pm-out{fill:none;stroke:var(--ink);stroke-width:3.5;stroke-linejoin:round}
+.pm-edge{stroke:var(--ink);stroke-width:4;stroke-linecap:round;transition:stroke .2s,stroke-width .2s}
+.pm-edge.on{stroke:var(--orange);stroke-width:7}
+.pm-en{font-family:var(--font-display);font-weight:800;fill:var(--orange-ink);text-anchor:middle;dominant-baseline:central;opacity:0;transition:opacity .2s}
+.pm-en.show{opacity:1}
+.pm-sq{font:800 22px var(--font-display);fill:var(--oops);text-anchor:middle;dominant-baseline:central;transition:opacity .3s}
+.pm-sq.dim{opacity:.18}
+.pm-side{stroke-width:5;stroke-linecap:round;transition:stroke-width .25s}
+.pm-side.len{stroke:var(--orange)} .pm-side.wid{stroke:var(--blue)}
+.pm-side.on{stroke-width:8}
+.pm-side.glow{stroke-width:9;animation:pmGlow .9s ease-in-out 2}
+@keyframes pmGlow{50%{stroke-width:13}}
+.pm-lab{font:800 22px var(--font-display)}
+.pm-lab.len{fill:var(--orange-ink)} .pm-lab.wid{fill:var(--blue)}
+.pm-sum text{font:800 26px var(--font-display);fill:var(--ink);text-anchor:middle}
+.pm-sum .len{fill:var(--orange-ink)} .pm-sum .wid{fill:var(--blue)}
+.pm-soil{fill:#B98552;transition:opacity .5s}
+.pm-inside{transition:opacity .5s}
+.sp-stem{stroke:var(--frog-2);stroke-width:2.5;stroke-linecap:round}
+.sp-leaf{fill:var(--frog)}
+.pm-fence{fill:none;stroke:var(--crust-2);stroke-width:6;stroke-dasharray:12 6;transition:stroke-width .4s}
+.pm-trail{fill:none;stroke:var(--orange);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.is-edge .pm-soil,.is-edge .pm-inside{opacity:.28}
+.is-edge .pm-trail{stroke-width:10}
+.pm-pill rect,.pm-total rect,.pm-tag-in rect{fill:var(--ink)}
+.pm-pill text,.pm-total text,.pm-tag-in text{font:700 18px var(--font-body);fill:var(--on-accent);text-anchor:middle}
+.pm-tag-in rect{fill:var(--surface);stroke:var(--line-2);stroke-width:2}
+.pm-tag-in text{fill:var(--ink-3);text-decoration:line-through}
+.pm-key-l{stroke:var(--ink);stroke-width:4;stroke-linecap:round}
+.pm-key text{font:700 15px var(--font-body);fill:var(--ink-2);text-anchor:middle}
+.pm-dim{font:700 15px var(--font-body);fill:var(--ink-2);text-anchor:middle}
+.pm-eq{font:800 16px var(--font-display);fill:var(--ink-3);text-anchor:middle}
+.pm-badge rect{fill:var(--surface);stroke:var(--line-2);stroke-width:2;transition:fill .3s,stroke .3s}
+.pm-badge text{font:800 17px var(--font-display);fill:var(--ink);text-anchor:middle;transition:fill .3s}
+.pm-badge.on rect{fill:var(--good);stroke:var(--good)} .pm-badge.on text{fill:var(--on-accent)}
+.bug{pointer-events:none}
+.bug-body{fill:#E4572E;stroke:var(--ink);stroke-width:2}
+.bug-head{fill:var(--ink)}
+.bug-line{stroke:var(--ink);stroke-width:1.8}
+.bug-spot{fill:var(--ink)}
+.bug-eye{fill:var(--surface)}
+.pm-big .pm-v{font:800 2.75rem/1 var(--font-display);color:var(--ink)}
+.ex-pm{max-width:470px}
+.q-fig .q-pm{max-width:440px}
+.opt .opt-pm{max-width:220px}
+/* the answer in a worked example, when it is a measurement */
+.ans-box{display:inline-flex;align-items:baseline;justify-content:center;min-width:2.4em;padding:.15em .45em;border-radius:20px;background:var(--surface);font:800 clamp(2.5rem,5vw,3.5rem)/1 var(--font-display);color:var(--ink)}
+.ans-box .fn{transition:opacity .3s,transform .4s cubic-bezier(.3,1.6,.5,1)}
+.ans-box .fn.hide{opacity:0;transform:scale(.4)}
+.ans-box small{font-size:.5em;margin-left:.15em;color:var(--ink-3)}
+/* number pad questions */
+.numq{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.num-show{display:inline-flex;align-items:baseline;gap:10px}
+.num-box{min-width:120px;height:76px;padding:0 16px;border-radius:18px;border:2.5px solid var(--blue);background:var(--blue-wash);box-shadow:0 0 0 4px var(--blue-soft);display:inline-grid;place-items:center;font:800 2.5rem/1 var(--font-display);color:var(--ink)}
+.locked .num-box{border-color:var(--line-2);box-shadow:none;background:var(--surface)}
+.num-unit{font:800 1.75rem/1 var(--font-display);color:var(--ink-3)}
+.pad.pad-num{grid-template-columns:repeat(3,56px)}
+.pad.pad-num button{display:grid;place-items:center}
+/* explore: the fence builder */
+.lab-pm .lab-shape{padding:clamp(10px,2vw,20px)}
+.pm-lab-svg{max-width:420px;touch-action:none}
+.pm-handle{fill:var(--orange);stroke:var(--ink);stroke-width:3;cursor:grab}
+.pm-handle:active{cursor:grabbing}
+.pm-tick{fill:var(--surface);stroke:var(--orange);stroke-width:2}
+.pm-tn{font:800 11px var(--font-display);fill:var(--orange-ink);text-anchor:middle}
+.pm-read .pm-v{font:800 clamp(2.75rem,5.5vw,3.75rem)/1 var(--font-display);white-space:nowrap}
+.pm-read .pm-v small{font-size:.45em;color:var(--ink-3)}
+.pm-ctrls{display:flex;flex-wrap:wrap;gap:12px 18px}
+.pm-ctl{display:flex;flex-direction:column;gap:6px}
+.pm-ctl-l{font-weight:700;font-size:.875rem}
+.pm-ctl-l.len{color:var(--orange-ink)} .pm-ctl-l.wid{color:var(--blue)}
+.lab-pm .stepper-ctl output{min-width:84px}
+.lab-pm .shape-toggle button{display:inline-flex;align-items:center;gap:8px}
+@media (max-width:760px){
+  .lab-pm{grid-template-columns:minmax(0,1fr)}
+  .pad.pad-num{grid-template-columns:repeat(3,52px)}
+}
