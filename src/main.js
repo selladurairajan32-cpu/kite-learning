@@ -1,22 +1,22 @@
 /* =====================================================================
    Routing and wiring. Each screen has a plain #name so links and the
    back button work: home, login, join, profiles, parent, subjects,
-   maths, topic-<id>, lesson.
+   maths, topic-<id>, lesson-<id> (and lesson for "carry on").
    ===================================================================== */
 let current = null, pendingTeacher = false;
-const ROUTES = { home: Home, login: () => Auth('login'), join: () => Auth('join'), profiles: Profiles, parent: Parent, subjects: Subjects, maths: Maths, lesson: Lesson };
+const ROUTES = { home: Home, login: () => Auth('login'), join: () => Auth('join'), profiles: Profiles, parent: Parent, subjects: Subjects, maths: Maths, lesson: () => Lesson(currentLessonId()) };
 
 function render() {
   const name = (location.hash || '#home').slice(1) || 'home';
   if (current && current.unmount) current.unmount();
   stageActs = {};
-  const make = name.indexOf('topic-') === 0 ? () => Topic(name.slice(6)) : (ROUTES[name] || Home);
+  const make = name.indexOf('topic-') === 0 ? () => Topic(name.slice(6)) : name.indexOf('lesson-') === 0 ? () => Lesson(name.slice(7)) : (ROUTES[name] || Home);
   current = make();
   const app = $('#app');
   app.innerHTML = current.html;
   window.scrollTo(0, 0);
   if (current.mount) current.mount(app);
-  if (pendingTeacher && name === 'lesson') { pendingTeacher = false; setTimeout(() => ACTIONS['to-teacher'](), 450); }
+  if (pendingTeacher && name.indexOf('lesson') === 0) { pendingTeacher = false; setTimeout(() => ACTIONS['to-teacher'](), 450); }
 }
 function go(name) { if (location.hash === '#' + name) render(); else location.hash = name; }
 
@@ -27,7 +27,7 @@ const ACTIONS = {
   'logout': () => { S.auth = false; save(); go('home'); },
   'stage': el => setStage(+el.dataset.i),
   'to-teacher': () => { const t = $('#teacher'); if (t) t.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); },
-  'sample-teacher': () => { S.auth = true; save(); pendingTeacher = true; go('lesson'); },
+  'sample-teacher': () => { S.auth = true; save(); pendingTeacher = true; go('lesson-understanding-fractions'); },
 };
 
 document.addEventListener('click', e => {

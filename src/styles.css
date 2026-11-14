@@ -21,6 +21,8 @@
   --sun:#FFD43B;  --sun-ink:#5C4500;  --sun-soft:#FFF5CC;
   /* teacher's paper */
   --b-bg:#FFFEF9; --b-grid:#DFE8F6; --b-ink:#17223F; --b-blue:#2756F5; --b-orange:#F0641E; --b-green:#0A8F60; --b-rose:#D12E58; --b-grey:#7C88A6; --b-hl:#FFE066;
+  /* Pip the frog and the pond */
+  --frog:#3DB56F; --frog-2:#1F8750; --pad:#A6DFB5; --pad-2:#6FC489; --pond:#E3F0FF; --petal:#F4A4C0;
   /* pizza */
   --cheese:#FFD27A; --crust:#E39A3B; --crust-2:#C97F23; --pep:#E4572E; --pep-2:#B93A1B;
   /* type */
@@ -328,6 +330,9 @@ svg{display:block}
 .path-card:hover{border-color:var(--line-2)}
 .path-item.is-locked .path-card{background:transparent;border-style:dashed;border-color:var(--line-2)}
 .path-item.is-locked .h{color:var(--ink-2)}
+.path-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.path-actions .link{font-size:.875rem}
+.path-item.is-open .node{border-color:var(--blue);color:var(--blue-deep)}
 .path-item.is-current .node{background:var(--blue);border-color:var(--blue);color:var(--on-accent);box-shadow:0 0 0 6px var(--blue-soft)}
 .path-item.is-current .path-card{border:1.5px solid var(--blue);box-shadow:var(--shadow-1);padding:20px}
 .path-item.is-current .h{font-size:1.375rem}
@@ -381,6 +386,8 @@ svg{display:block}
 .note{font-size:1rem;color:var(--ink-2);max-width:40ch}
 .bigfrac{display:inline-flex;align-items:center;gap:18px;align-self:flex-start;padding:14px 24px 14px 20px;border-radius:22px;background:var(--blue-wash);font:800 1.375rem/1.2 var(--font-display);animation:sayIn .4s ease both}
 .bigfrac .frac{font-size:3.25rem;margin:0}
+.bigfrac.fracrow{gap:22px}
+.bigfrac.fracrow .frac{font-size:2.5rem}
 .stage-foot{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .dots{display:flex;gap:6px;align-items:center}
 .dots i{width:8px;height:8px;border-radius:99px;background:var(--line-2);transition:width .25s,background-color .25s}
@@ -617,6 +624,71 @@ svg{display:block}
 .can-do .ico{color:var(--good)}
 
 /* =====================================================================
+   Number lines (lesson 2 onward)
+   Same colour code as the fraction pictures: jumps made from 0 are
+   orange like the top number, all the equal jumps are blue like the
+   bottom number.
+   ===================================================================== */
+.nl{width:100%;height:auto;overflow:visible}
+.scene.nl{overflow:hidden}
+.nl .ax{stroke:var(--ink);stroke-width:4;stroke-linecap:round}
+.nl .tk{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+.nl .tk.end{stroke-width:4}
+.nl .tn{font:800 20px var(--font-display);fill:var(--ink);text-anchor:middle}
+.nl .tn.word{font:600 14px var(--font-body);fill:var(--ink-2)}
+.scene.nl .tn{font-size:25px}
+.nl .hop{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:.06 .075;opacity:.6;transition:opacity .25s}
+.nl .hop.on{stroke:var(--orange);stroke-width:3.5;opacity:1;stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset .5s ease-out}
+.nl .hop.on.wait{stroke-dashoffset:1;opacity:0;transition:none}
+.nl .hop.off{opacity:0}
+.nl .jc{font-family:var(--font-display);font-weight:800;fill:var(--blue);text-anchor:middle;dominant-baseline:central;opacity:0;transition:opacity .2s}
+.nl .jc.show{opacity:1}
+.nl .jc.top{fill:var(--orange-ink)}
+.nl .mn{font:800 19px var(--font-display);fill:var(--oops);text-anchor:middle;opacity:0;transition:opacity .3s}
+.nl .mn.show{opacity:1}
+.nl .mn.dim{opacity:.2}
+.nl .tl{opacity:0;transition:opacity .35s}
+.nl .tl.show{opacity:1}
+.nl .tl-pill{fill:var(--surface);stroke:var(--line-2);stroke-width:1.5}
+.nl .mk{fill:var(--orange);stroke:var(--ink);stroke-width:2.5}
+.nl .mk.land{transform-box:fill-box;transform-origin:center;animation:mkLand .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes mkLand{from{transform:scale(.3)}to{transform:none}}
+.nl .pin{fill:var(--ink)}
+.nl .hit{fill:transparent;cursor:pointer}
+.nl .hit:hover{fill:rgba(39,86,245,.1)}
+.nl .hit[aria-pressed="true"]{fill:rgba(39,86,245,.12)}
+.nl .hit:focus-visible{outline:3px solid var(--blue);outline-offset:1px}
+.nl.fresh .tk:not(.end){transform-box:fill-box;transform-origin:center;animation:tkIn .45s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes tkIn{from{opacity:0;transform:scaleY(.1)}to{opacity:1;transform:none}}
+.frog{pointer-events:none}
+.pond{fill:var(--pond)}
+.pad{fill:var(--pad);stroke:var(--pad-2);stroke-width:1.5}
+.petal{fill:var(--petal)}
+.pollen{fill:var(--sun)}
+.gap{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.gap-q{font:800 34px var(--font-display);fill:var(--amber-ink);text-anchor:middle}
+.zoom-note rect,.verdict-t rect{fill:var(--ink)}
+.zoom-note text,.verdict-t text{font:700 17px var(--font-body);fill:var(--on-accent);text-anchor:middle}
+.bubble path{fill:var(--surface);stroke:var(--line-2);stroke-width:2;stroke-linejoin:round}
+.bubble text{font:600 15px var(--font-body);fill:var(--ink);text-anchor:middle}
+.barg{transition:transform .8s cubic-bezier(.3,1.15,.5,1)}
+.is-laid .barg{transform:translateY(152px)}
+.guide line{stroke:var(--ink-3);stroke-width:2;stroke-dasharray:4 7;stroke-linecap:round}
+.lab-line{grid-template-columns:minmax(0,1fr)}
+.lab-line .lab-shape{min-height:0;padding:clamp(12px,2vw,22px)}
+.lab-line .lab-svg{touch-action:none;cursor:grab;border-radius:12px}
+.lab-line .lab-svg:focus-visible{outline:3px solid var(--blue);outline-offset:6px}
+.lab-line .lab-side{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px 26px;align-items:center}
+.lab-line .lab-ctrl{justify-content:flex-end}
+.lab-line .q-help{grid-column:1/-1}
+.build.is-stack{flex-direction:column;gap:20px}
+.build.is-stack #ex-fig{display:block;width:100%;max-width:470px}
+.q-fig .nl{max-width:520px}
+.opt .nl{max-width:330px}
+.opt-n{font:800 2rem/1 var(--font-display)}
+.fb .nl{max-width:320px;margin-top:10px}
+
+/* =====================================================================
    Watch teacher explain
    ===================================================================== */
 .teacher{margin-top:clamp(28px,5vw,56px);scroll-margin-top:calc(84px + env(safe-area-inset-top,0px))}
@@ -766,6 +838,8 @@ svg{display:block}
   .say{max-width:none}
   .stage-card{min-height:0}
   .lab-compact{grid-template-columns:1fr}
+  .lab-line .lab-side{grid-template-columns:1fr}
+  .lab-line .lab-ctrl{justify-content:flex-start}
 }
 @media (max-width:720px){
   body{font-size:16px}
