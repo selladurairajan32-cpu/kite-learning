@@ -3,7 +3,9 @@
 //   preview.html        -> the same page wrapped in a skeleton, for opening locally
 const fs = require('fs'), path = require('path');
 const src = f => fs.readFileSync(path.join(__dirname, 'src', f), 'utf8');
-const js = ['core.js', 'views.js', 'lesson.js', 'teacher.js', 'main.js'].map(src).join('\n');
+// order matters: shared code first, then the lesson frame, then each lesson's content, then the screens
+const LESSON_FILES = fs.readdirSync(path.join(__dirname, 'src', 'lessons')).filter(f => f.endsWith('.js')).sort().map(f => 'lessons/' + f);
+const js = ['core.js', 'tools.js', 'teacher.js', 'frame.js', ...LESSON_FILES, 'views.js', 'main.js'].map(src).join('\n');
 const page = `${src('head.html')}<style>
 ${src('styles.css')}</style>
 <div id="app"></div>

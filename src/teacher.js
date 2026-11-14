@@ -29,56 +29,16 @@ const Teacher = (() => {
   const think = ms => ({ k: 'think', dur: ms, after: 'say' });
   const num = (t, x, y, o = {}) => w(String(t), x, y, { size: 36, c: 'grey', anchor: 'mid', gap: 170, ...o });
 
-  const SCRIPT = [
-    { title: 'What is a fraction?', steps: [
-      { say: 'Hello! Today we are going to learn about fractions.', ops: [w('Fractions', 56, 96, { size: 68, b: 1, c: 'blue', id: 't1' }), und('t1', { c: 'orange' })] },
-      { say: "Let's start with one whole pizza.", ops: [circ(210, 350, 138), w('one whole', 210, 548, { size: 40, anchor: 'mid' })] },
-      { say: 'Two friends want to share it fairly. So I cut it into two equal parts.', ops: [line(210, 196, 210, 504, { wait: 1500 }), w('2 equal parts', 400, 250, { size: 44 })] },
-      { say: 'I will colour one of the parts.', ops: [shadeS(210, 350, 138, 0, 180, { dur: 1700 })] },
-      { say: 'That is one out of two equal parts. We write a one, a line, and a two.', ops: [w('1', 490, 392, { size: 100, c: 'orange', anchor: 'mid', wait: 2300 }), line(445, 412, 535, 412, { wd: 6 }), w('2', 490, 506, { size: 100, c: 'blue', anchor: 'mid' })] },
-      { say: 'We call this one half.', ops: [w('= one half', 575, 436, { size: 54 })], hold: 1000 },
-    ] },
-    { title: 'Top and bottom numbers', steps: [
-      { say: 'Here is a chocolate bar. I split it into four equal parts.', ops: [box(60, 66, 480, 104), line(180, 68, 180, 168, { wait: 500 }), line(300, 68, 300, 168), line(420, 68, 420, 168)] },
-      { say: "Let's count them. One, two, three, four.", ops: [num(1, 120, 216, { wait: 1100 }), num(2, 240, 216), num(3, 360, 216), num(4, 480, 216)] },
-      { say: 'Four equal parts altogether. That number goes on the bottom.', ops: [line(100, 398, 200, 398, { wd: 6, wait: 1700 }), w('4', 150, 494, { size: 104, c: 'blue', anchor: 'mid' })] },
-      { say: 'Now I colour three of the parts.', ops: [shadeR(60, 66, 120, 104), shadeR(180, 66, 120, 104), shadeR(300, 66, 120, 104)] },
-      { say: 'Three parts are coloured. That number goes on the top.', ops: [w('3', 150, 378, { size: 104, c: 'orange', anchor: 'mid', wait: 1700 })] },
-      { say: 'The top number tells us how many parts we are counting. Its special name is the numerator.',
-        ops: [arrow(292, 338, 218, 338, { c: 'orange' }), w('top number', 306, 350, { size: 42, c: 'orange', id: 'top' }), w('how many parts we count', 306, 392, { size: 30 }), w('= numerator', '+top', 350, { size: 36, c: 'grey', wait: 900 })] },
-      { say: 'The bottom number tells us how many equal parts are in the whole. It is called the denominator. D for down!',
-        ops: [arrow(292, 462, 218, 462, { c: 'blue' }), w('bottom number', 306, 474, { size: 42, c: 'blue', id: 'bot' }), w('how many equal parts in the whole', 306, 516, { size: 30, maxW: 540 }), w('= denominator', '+bot', 474, { size: 36, c: 'grey', wait: 600 })] },
-      { say: 'So this fraction is three quarters.', ops: [w('three quarters', 588, 132, { size: 42, c: 'green', maxW: 276, id: 'tq' }), loop(726, 118, 162, 46, { c: 'green' })], hold: 1000 },
-    ] },
-    { title: 'Equal parts', steps: [
-      { say: 'Here is something really important. The parts must be equal.', ops: [w('Equal parts!', 56, 92, { size: 62, b: 1, id: 't3' }), und('t3', { c: 'orange' })] },
-      { say: 'This bar has three equal parts, and one is coloured.', ops: [box(70, 150, 360, 104), line(190, 152, 190, 252), line(310, 152, 310, 252), shadeR(70, 150, 120, 104)] },
-      { say: 'So the coloured part is one third.', ops: [w('1', 520, 196, { size: 66, c: 'orange', anchor: 'mid' }), line(490, 208, 550, 208, { wd: 5 }), w('3', 520, 268, { size: 66, c: 'blue', anchor: 'mid' }), tick(590, 205, { c: 'green' })] },
-      { say: 'Now look at this bar. It has three parts too, but they are different sizes.', ops: [box(70, 350, 360, 104), line(270, 352, 270, 452, { wait: 900 }), line(350, 352, 350, 452), shadeR(70, 350, 200, 104, { dur: 1100 })] },
-      { say: 'Is the coloured part one third? Have a think.', ops: [w('one third?', 470, 410, { size: 46 }), think(3400)] },
-      { say: 'No! The parts are not equal, so it is not one third.', ops: [cross(730, 372, { c: 'rose' }), w('not equal', 470, 474, { size: 46, c: 'rose', wait: 500 })] },
-      { say: 'Fractions are fair shares. Every part must be the same size.', ops: [w('Fractions need equal parts.', 70, 552, { size: 40, c: 'blue' })], hold: 1000 },
-    ] },
-    { title: "Let's solve one together", steps: [
-      { say: "Let's solve one together. What fraction of this pizza is coloured?", ops: [w('What fraction is coloured?', 56, 84, { size: 46, b: 1 }), circ(215, 350, 146), line(215, 204, 215, 496), line(69, 350, 361, 350), line(112, 247, 318, 453), line(318, 247, 112, 453)] },
-      { say: 'Some of the slices are coloured in.', ops: [0, 1, 2, 3, 4].map(i => shadeS(215, 350, 146, i * 45, i * 45 + 45, { dur: 430, gap: 60 })) },
-      { say: 'Step one. Count all the equal parts.', ops: [w('1. Count all the parts', 430, 176, { size: 36, c: 'blue', maxW: 440 })] },
-      { say: 'One, two, three, four, five, six, seven, eight.', ops: Array.from({ length: 8 }, (_, i) => { const a = (i + 0.5) * Math.PI / 4; return num(i + 1, 215 + 176 * Math.sin(a), 350 - 176 * Math.cos(a) + 12, { size: 32, gap: 60 }); }) },
-      { say: 'Eight equal parts. So eight goes on the bottom.', ops: [line(470, 420, 570, 420, { wd: 6, wait: 1200 }), w('8', 520, 516, { size: 104, c: 'blue', anchor: 'mid' })] },
-      { say: 'Step two. Count the coloured parts. How many can you see?', ops: [w('2. Count the coloured parts', 430, 240, { size: 36, c: 'orange', maxW: 440 }), think(3600)] },
-      { say: 'Five parts are coloured. So five goes on the top.', ops: [w('5', 520, 400, { size: 104, c: 'orange', anchor: 'mid', wait: 1500 })] },
-      { say: 'The answer is five eighths. Well done if you got it!', ops: [loop(520, 428, 84, 128, { c: 'green' }), w('five eighths', 622, 446, { size: 44, c: 'green', maxW: 250 })], hold: 1100 },
-    ] },
-    { title: 'Remember', steps: [
-      { say: "Let's remember three things.", ops: [w('Remember', 56, 96, { size: 66, b: 1, c: 'blue', id: 't5' }), und('t5', { c: 'orange' })] },
-      { say: 'One. A fraction is part of a whole.', ops: [w('1.', 60, 204, { size: 44, c: 'blue' }), w('A fraction is part of a whole', 124, 204, { size: 42, maxW: 720 })] },
-      { say: 'Two. The parts must be equal.', ops: [w('2.', 60, 292, { size: 44, c: 'blue' }), w('The parts must be equal', 124, 292, { size: 42 })] },
-      { say: 'Three. The bottom number counts all the equal parts. The top number counts the parts we want.',
-        ops: [w('3.', 60, 380, { size: 44, c: 'blue' }), w('Bottom number:', 124, 380, { size: 42, c: 'blue', id: 'b5' }), w('all the equal parts', '+b5', 380, { size: 42 }),
-          w('Top number:', 124, 448, { size: 42, c: 'orange', id: 'p5', wait: 500 }), w('the parts we count', '+p5', 448, { size: 42 })] },
-      { say: 'Now it is your turn. Try the practice questions. You can do it!', ops: [star(520, 536, 30, { c: 'orange', wait: 800 }), w('Your turn!', 570, 556, { size: 60, b: 1, c: 'green' })], hold: 1400 },
-    ] },
-  ];
+  /* a hop along a number line, and a solid dot */
+  const hop = (x1, x2, y, o = {}) => ({ k: 'h', x1, x2, y, ...o });
+  const dot = (cx, cy, o = {}) => ({ k: 'd', cx, cy, ...o });
+  /* a stacked fraction: top number, bar, bottom number (y is the height of the bar) */
+  const fr = (cx, y, n, d, o = {}) => {
+    const size = o.size || 60, top = w(String(n), cx, y - size * 0.2, { size, c: 'orange', anchor: 'mid', wait: o.wait }),
+      bar = line(cx - size * 0.45, y, cx + size * 0.45, y, { wd: size > 80 ? 6 : 5 }), bot = w(String(d), cx, y + size * 0.94, { size, c: 'blue', anchor: 'mid' });
+    return o.bottomFirst ? [bar, bot, top] : [top, bar, bot];
+  };
+  const ops = { w, line, circ, box, shadeR, shadeS, und, arrow, tick, cross, loop, star, think, num, hop, dot, fr };
 
   /* ---- hand-drawn geometry ---- */
   function spline(pts) {
@@ -121,7 +81,7 @@ const Teacher = (() => {
 
   /* ---- build the board: every mark becomes an op with set(progress) and pen(progress) ---- */
   let boardSeq = 0;
-  function build(svg) {
+  function build(svg, script) {
     const uid = 'b' + (++boardSeq);
     svg.innerHTML = '';
     const defs = mk('defs', {}, svg);
@@ -201,18 +161,30 @@ const Teacher = (() => {
           }
           return stroke(g, hatch(bx, by, bw, bh, 16, seed), { c: op.c || 'orange', dur: op.dur }, () => 900, { wd: 11, opacity: 0.66, clip: id });
         }
+        case 'h': {
+          const dx = op.x2 - op.x1, h = op.h || Math.min(70, Math.abs(dx) * 0.42), cy = op.y + (op.down ? 2 : -2) * h;
+          const a = Math.atan2(op.y - cy, dx / 2), hd = 13;      // the way the hop is travelling as it lands
+          const d = `M${op.x1},${op.y}Q${f1(op.x1 + dx / 2)},${f1(cy)} ${op.x2},${op.y}`
+            + `M${f1(op.x2 - hd * Math.cos(a - 0.5))},${f1(op.y - hd * Math.sin(a - 0.5))}L${op.x2},${op.y}L${f1(op.x2 - hd * Math.cos(a + 0.5))},${f1(op.y - hd * Math.sin(a + 0.5))}`;
+          return stroke(g, d, op, () => 520, { wd: 4 });
+        }
+        case 'd': {
+          const c = mk('circle', { cx: op.cx, cy: op.cy, r: 0 }, g), color = INK[op.c || 'orange'], R = op.r || 11;
+          c.style.fill = color;
+          return { dur: op.dur || 260, color, set: q => c.setAttribute('r', f1(R * q)), pen: () => [op.cx, op.cy] };
+        }
         default: return { dur: op.dur || 1000, think: true, set() { }, pen: null };
       }
     }
 
-    SCRIPT.forEach((sc, si) => {
+    script.forEach((sc, si) => {
       const g = mk('g', {}, svg), scene = { title: sc.title, t0: t, ops: [], g }, ids = {};
       sc.steps.forEach(st => {
         const sayMs = speakMs(st.say), step = { say: st.say, t0: t, scene: si, sayMs };
         const bits = st.say.match(/[^.!?]+[.!?]+/g) || [st.say], words = bits.map(b => b.trim().split(/\s+/).length), all = words.reduce((a, b) => a + b, 0);
         step.parts = bits.map((b, i) => ({ text: b.trim(), share: words[i] / all }));
         let a = t + 260;
-        st.ops.forEach(op => {
+        st.ops.flat().forEach(op => {
           const o = makeOp(op, g, ids);
           if (op.id) ids[op.id] = o;
           if (op.after === 'say') a = Math.max(a, t + sayMs + 150);
@@ -226,7 +198,7 @@ const Teacher = (() => {
         t = step.t1;
         model.steps.push(step);
       });
-      scene.t1 = t + (si < SCRIPT.length - 1 ? 700 : 0);   // a moment to look, then the page turns
+      scene.t1 = t + (si < script.length - 1 ? 700 : 0);   // a moment to look, then the page turns
       t = scene.t1;
       model.scenes.push(scene);
     });
@@ -279,10 +251,10 @@ const Teacher = (() => {
   const SPEEDS = [0.75, 1, 1.25, 1.5];
   function unmount() {
     mountSeq++;
-    if (P) { cancelAnimationFrame(P.raf); P.playing = false; if (P.M) { try { L().tv = stepAt(P.M, P.t); save(); } catch (e) { } } document.removeEventListener('visibilitychange', P.onVis); }
+    if (P) { cancelAnimationFrame(P.raf); P.playing = false; if (P.M && P.l) { try { P.l.tv = P.t >= P.M.total ? 0 : stepAt(P.M, P.t); save(); } catch (e) { } } document.removeEventListener('visibilitychange', P.onVis); }
     P = null; Voice.stop();
   }
-  async function mount(root) {
+  async function mount(root, tdef, l) {
     unmount();
     const my = mountSeq;
     root.innerHTML = `<div class="player">
@@ -307,11 +279,11 @@ const Teacher = (() => {
     </div>`;
     await fontsIn();
     if (my !== mountSeq || !root.isConnected) return;
-    const hadFont = fontHere(), M = build($('.bsvg', root)), l = L();
+    const hadFont = fontHere(), M = build($('.bsvg', root), tdef.script), still = M.scenes[Math.min(tdef.poster == null ? 1 : tdef.poster, M.scenes.length - 1)].t1 - 720;
     const el = { cover: $('.board-cover', root), end: $('.board-end', root), think: $('.think', root), ring: $('.think-ring', root), cap: $('.captions', root), scrub: $('.scrub', root),
       pp: $('.pp', root), time: $('.time', root), speed: $('[data-t=speed]', root), cc: $('[data-t=cc]', root), voice: $('[data-t=voice]', root), note: $('.voice-note', root) };
     const resume = l.tv > 0 && l.tv < M.steps.length - 1 ? M.steps[l.tv].t0 : 0;
-    P = { M, t: resume, playing: false, started: false, step: -1, speed: SPEEDS.includes(S.speed) ? S.speed : 1, live: false, held: 0, utter: 0, fails: 0, dead: !Voice.ok, raf: 0, last: 0, capText: null };
+    P = { M, l, t: resume, playing: false, started: false, step: -1, speed: SPEEDS.includes(S.speed) ? S.speed : 1, live: false, held: 0, utter: 0, fails: 0, dead: !Voice.ok, raf: 0, last: 0, capText: null };
     const me = P;
     el.scrub.innerHTML = M.scenes.map(s => `<span class="seg-t" style="flex:${Math.round(s.t1 - s.t0)}"><i></i></span>`).join('');
     $('.ch-list', root).innerHTML = M.scenes.map((s, i) => `<button type="button" class="chapter" data-ch="${i}"><span class="n">${i + 1}</span><span>${s.title}</span><small>${fmt(s.t0)}</small></button>`).join('');
@@ -322,7 +294,7 @@ const Teacher = (() => {
     el.ring.style.strokeDasharray = `${ringLen} ${ringLen}`;
 
     function draw() {
-      const shown = me.started ? me.t : (resume || M.scenes[1].t1 - 720);   // before play: show a finished page as the poster
+      const shown = me.started ? me.t : (resume || still);   // before play: show a finished page as the poster
       const r = renderAt(M, shown);
       M.pen.style.opacity = me.started ? 1 : 0.9;
       const tt = me.started ? me.t : resume;
@@ -419,16 +391,16 @@ const Teacher = (() => {
     me.onVis = () => { if (document.hidden && me.playing) pause(); };
     document.addEventListener('visibilitychange', me.onVis);
     ui(); draw();
-    if (!hadFont && document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (P === me && !me.started && fontHere()) { Object.assign(M, build($('.bsvg', root))); draw(); } });
+    if (!hadFont && document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (P === me && !me.started && fontHere()) { Object.assign(M, build($('.bsvg', root), tdef.script)); draw(); } });
   }
   /* a still frame for the homepage */
-  async function poster(root) {
+  async function poster(root, tdef) {
     const my = mountSeq;
-    root.innerHTML = `<div class="board" style="border-radius:0;box-shadow:none"><svg class="bsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="A page of handwritten working that explains three quarters"></svg></div>`;
+    root.innerHTML = `<div class="board" style="border-radius:0;box-shadow:none"><svg class="bsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="A page of the teacher's handwritten working"></svg></div>`;
     await fontsIn();
     if (!root.isConnected || my !== mountSeq) return;
-    const M = build($('.bsvg', root));
-    renderAt(M, M.scenes[1].t1 - 720);
+    const M = build($('.bsvg', root), tdef.script);
+    renderAt(M, M.scenes[Math.min(tdef.poster == null ? 1 : tdef.poster, M.scenes.length - 1)].t1 - 720);
   }
-  return { mount, unmount, poster };
+  return { mount, unmount, poster, ops };
 })();
