@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;600;700;800;900&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* =====================================================================
    Kite Learning — design tokens
@@ -842,6 +843,221 @@ svg{display:block}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* =====================================================================
+   Homepage — dark editorial theme (scoped to .hx so other screens keep
+   the light design). Near-black ground, lime accent, very large tight
+   type with an italic serif accent, mono eyebrows, bento cards, and
+   staggered reveal animations.
+   ===================================================================== */
+.hx{
+  --hx-bg:#08090B; --hx-surface:#111317; --hx-surface-2:#171A1F; --hx-line:rgba(255,255,255,.08); --hx-line-2:rgba(255,255,255,.14);
+  --hx-ink:#F3F4F1; --hx-ink-2:#A8ACB3; --hx-ink-3:#6E737C;
+  --hx-accent:#D2FF4D; --hx-accent-ink:#0B0D06; --hx-violet:#9B8CFF;
+  --hx-sans:'Inter Tight','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hx-serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --hx-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --hx-ease:cubic-bezier(.16,1,.3,1);
+  position:relative;isolation:isolate;overflow:clip;background:var(--hx-bg);color:var(--hx-ink);font-family:var(--hx-sans);font-size:17px;letter-spacing:-.005em;
+  color-scheme:dark;animation:none
+}
+.hx :focus-visible{outline-color:var(--hx-accent)}
+.hx h1,.hx h2,.hx h3{font-family:var(--hx-sans);font-weight:500;color:var(--hx-ink)}
+.hx-glow{position:absolute;z-index:-1;inset:-20vh -10vw auto;height:120vh;pointer-events:none;
+  background:radial-gradient(40% 35% at 50% 18%,rgba(210,255,77,.16),transparent 70%),radial-gradient(30% 30% at 82% 8%,rgba(155,140,255,.14),transparent 70%),radial-gradient(28% 28% at 14% 22%,rgba(80,170,255,.10),transparent 70%);
+  animation:hxGlow 14s ease-in-out infinite alternate}
+.hx-glow::after{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--hx-line) 1px,transparent 1px),linear-gradient(90deg,var(--hx-line) 1px,transparent 1px);background-size:72px 72px;
+  -webkit-mask-image:radial-gradient(60% 50% at 50% 20%,#000 20%,transparent 75%);mask-image:radial-gradient(60% 50% at 50% 20%,#000 20%,transparent 75%);opacity:.6}
+@keyframes hxGlow{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,-3vh,0) scale(1.08)}}
+
+/* header */
+.hx-head{position:sticky;top:0;z-index:20;padding-block:14px;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);background:rgba(8,9,11,.6);border-bottom:1px solid var(--hx-line)}
+.hx-head-in{display:flex;align-items:center;gap:20px}
+.hx .logo{color:var(--hx-ink);font-family:var(--hx-sans);font-weight:600;letter-spacing:-.03em}
+.hx .logo em{color:var(--hx-ink-3)}
+.hx-nav{display:flex;gap:2px;margin-inline:auto;padding:4px;border:1px solid var(--hx-line);border-radius:999px;background:rgba(255,255,255,.02)}
+.hx-nav button{background:none;border:0;padding:8px 16px;border-radius:999px;font:500 .875rem/1 var(--hx-sans);color:var(--hx-ink-2);cursor:pointer;transition:color .2s,background-color .2s}
+.hx-nav button:hover{color:var(--hx-ink);background:rgba(255,255,255,.06)}
+.hx-actions{display:flex;align-items:center;gap:18px}
+.hx-link{color:var(--hx-ink-2);text-decoration:none;font-size:.9375rem;font-weight:500;transition:color .2s}
+.hx-link:hover{color:var(--hx-ink)}
+
+/* buttons */
+.hx-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;border:0;cursor:pointer;
+  font:500 1rem/1 var(--hx-sans);letter-spacing:-.01em;text-decoration:none;white-space:nowrap;transition:transform .35s var(--hx-ease),background-color .25s,box-shadow .35s var(--hx-ease),color .25s}
+.hx-btn:hover{transform:translateY(-2px)}
+.hx-btn:active{transform:translateY(0) scale(.98)}
+.hx-btn-sm{min-height:40px;padding:0 18px;font-size:.9375rem}
+.hx-btn-accent{background:var(--hx-accent);color:var(--hx-accent-ink);box-shadow:0 0 0 0 rgba(210,255,77,0)}
+.hx-btn-accent:hover{box-shadow:0 10px 40px -8px rgba(210,255,77,.55)}
+.hx-btn-ghost{background:rgba(255,255,255,.04);color:var(--hx-ink);box-shadow:inset 0 0 0 1px var(--hx-line-2)}
+.hx-btn-ghost:hover{background:rgba(255,255,255,.09)}
+.hx-btn-light{background:var(--hx-ink);color:var(--hx-bg)}
+.hx-btn-dark{background:var(--hx-accent-ink);color:var(--hx-accent)}
+.hx-btn-outline{background:transparent;color:var(--hx-accent-ink);box-shadow:inset 0 0 0 1.5px rgba(11,13,6,.35)}
+.hx-btn-outline:hover{background:rgba(11,13,6,.06)}
+.hx-arrow{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:-12px;border-radius:50%;background:var(--hx-accent-ink);color:var(--hx-accent);transition:transform .35s var(--hx-ease)}
+.hx-btn-dark .hx-arrow{background:var(--hx-accent);color:var(--hx-accent-ink)}
+.hx-btn:hover .hx-arrow{transform:translateX(3px) rotate(-45deg)}
+
+/* hero */
+.hx-hero{padding-block:clamp(56px,9vw,120px) 0;text-align:center}
+.hx-pill{display:inline-flex;align-items:center;gap:10px;padding:7px 14px 7px 10px;border:1px solid var(--hx-line-2);border-radius:999px;background:rgba(255,255,255,.03);
+  font:500 .75rem/1 var(--hx-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--hx-ink-2)}
+.hx-dot{width:8px;height:8px;border-radius:50%;background:var(--hx-accent);box-shadow:0 0 0 0 rgba(210,255,77,.6);animation:hxPulse 2.2s ease-out infinite}
+@keyframes hxPulse{0%{box-shadow:0 0 0 0 rgba(210,255,77,.55)}100%{box-shadow:0 0 0 10px rgba(210,255,77,0)}}
+.hx-h1{max-width:13ch;margin:28px auto 0;font-size:clamp(2.875rem,8.4vw,7rem);line-height:.95;letter-spacing:-.055em;font-weight:500}
+.hx-h1 em{font-family:var(--hx-serif);font-style:italic;font-weight:400;letter-spacing:-.02em;color:var(--hx-accent)}
+.hx-w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+.hx-w>span{display:inline-block;transform:translateY(105%);animation:hxWord 1s var(--hx-ease) both;animation-delay:calc(.15s + var(--i) * 70ms)}
+@keyframes hxWord{to{transform:none}}
+.hx-in{animation:hxUp 1s var(--hx-ease) both;animation-delay:calc(.1s + var(--d,0) * 90ms)}
+@keyframes hxUp{from{opacity:0;transform:translateY(24px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.hx-lead{max-width:56ch;margin:28px auto 0;font-size:clamp(1.0625rem,1.4vw,1.1875rem);line-height:1.6;color:var(--hx-ink-2)}
+.hx-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.hx-hero .hx-cta{justify-content:center}
+.hx-stage{position:relative;max-width:920px;margin:clamp(56px,7vw,88px) auto 0}
+.hx-stage::before{content:"";position:absolute;z-index:-1;inset:10% 8% -6%;background:radial-gradient(closest-side,rgba(210,255,77,.22),transparent);filter:blur(40px)}
+
+/* product frame: a light "screen" inside a dark device frame */
+.hx-frame{position:relative;padding:10px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));box-shadow:inset 0 0 0 1px var(--hx-line-2),0 40px 80px -30px rgba(0,0,0,.8);text-align:left}
+.hx-frame-bar{display:flex;align-items:center;gap:7px;padding:6px 10px 14px;font:500 .75rem/1 var(--hx-mono);color:var(--hx-ink-3)}
+.hx-frame-bar i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.14)}
+.hx-frame-bar span:first-of-type{margin-left:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-live{margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(210,255,77,.12);color:var(--hx-accent);white-space:nowrap}
+.hx-screen{border-radius:20px;background:var(--bg);color:var(--ink);font-family:var(--font-body);padding:clamp(14px,2.4vw,28px);overflow:hidden;letter-spacing:normal}
+.hx-screen-flush{padding:0}
+.hx-screen-flush .board-preview{border:0;border-radius:20px;box-shadow:none}
+.hx-screen .mini-dash{box-shadow:none}
+.hx-float{position:absolute;z-index:2;display:flex;align-items:center;gap:12px;padding:12px 16px 12px 12px;border-radius:18px;text-align:left;
+  background:rgba(17,19,23,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:inset 0 0 0 1px var(--hx-line-2),0 20px 40px -20px rgba(0,0,0,.8);animation:hxFloat 6s ease-in-out infinite}
+.hx-float b{display:block;font-weight:500;font-size:.9375rem;color:var(--hx-ink)}
+.hx-float span:not(.hx-float-ico){display:block;font-size:.8125rem;color:var(--hx-ink-3)}
+.hx-float-ico{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--hx-accent);color:var(--hx-accent-ink)}
+.hx-float-a{left:-64px;top:28%}
+.hx-float-b{right:-56px;bottom:16%;animation-delay:-3s}
+.hx-float-b .hx-float-ico{background:var(--hx-violet);color:#120E2B}
+@keyframes hxFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* marquee */
+.hx-marquee{margin-top:clamp(64px,8vw,104px);padding-block:22px;border-block:1px solid var(--hx-line);overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.hx-track{display:flex;align-items:center;gap:28px;width:max-content;animation:hxMarq 48s linear infinite;font-size:clamp(1.125rem,2vw,1.5rem);letter-spacing:-.03em;color:var(--hx-ink-2);white-space:nowrap}
+.hx-track i{font-style:normal;color:var(--hx-accent);font-size:.75em}
+@keyframes hxMarq{to{transform:translateX(-50%)}}
+
+/* stats */
+.hx-stats{padding-block:clamp(48px,6vw,80px) 0}
+.hx-stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.hx-stat{padding:8px 24px;border-left:1px solid var(--hx-line)}
+.hx-stat:first-child{border-left:0;padding-left:0}
+.hx-stat b{display:block;font-weight:500;font-size:clamp(3rem,6vw,5rem);line-height:1;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+.hx-stat span{display:block;margin-top:10px;font-size:.9375rem;color:var(--hx-ink-3)}
+
+/* sections */
+.hx-sec{padding-block:clamp(72px,10vw,140px) 0}
+.hx-sec-head{max-width:760px;margin-bottom:clamp(36px,5vw,64px)}
+.hx-eyebrow{font:500 .75rem/1 var(--hx-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--hx-accent)}
+.hx h2{margin-top:18px;font-size:clamp(2.125rem,4.6vw,3.75rem);line-height:1.02;letter-spacing:-.045em}
+.hx-sub{margin-top:18px;max-width:58ch;font-size:1.0625rem;line-height:1.6;color:var(--hx-ink-2)}
+
+/* reveal on scroll */
+.hx-rv{opacity:0;transform:translateY(32px);transition:opacity .9s var(--hx-ease),transform .9s var(--hx-ease);transition-delay:calc(var(--d,0) * 80ms)}
+.hx-rv.is-in{opacity:1;transform:none}
+
+/* cards */
+.hx-card{position:relative;padding:28px;border-radius:24px;background:var(--hx-surface);box-shadow:inset 0 0 0 1px var(--hx-line);overflow:hidden;
+  transition:opacity .9s var(--hx-ease),transform .5s var(--hx-ease),box-shadow .3s,background-color .3s}
+.hx-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:radial-gradient(120% 80% at 0% 0%,color-mix(in srgb,var(--hx-c,var(--hx-accent)) 18%,transparent),transparent 60%)}
+.hx-card.is-in:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px var(--hx-line-2)}
+.hx-card:hover::before{opacity:1}
+.hx-card h3{font-size:1.5rem;letter-spacing:-.035em;line-height:1.1}
+.hx-card p{margin-top:8px;color:var(--hx-ink-2);font-size:.9875rem;line-height:1.55}
+.hx-bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.hx-subj{grid-column:span 3;display:flex;flex-direction:column;min-height:300px}
+.hx-subj:nth-child(1){grid-column:span 4;background:linear-gradient(160deg,#1A1F12,var(--hx-surface) 60%)}
+.hx-subj:nth-child(2){grid-column:span 2}
+.hx-subj:nth-child(3){grid-column:span 2}
+.hx-subj:nth-child(4){grid-column:span 4}
+.hx-subj.c-blue{--hx-c:var(--hx-accent)} .hx-subj.c-rose{--hx-c:#FF7BA5} .hx-subj.c-amber{--hx-c:#FFC35C} .hx-subj.c-teal{--hx-c:#5EE6CF}
+.hx-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:auto;padding-bottom:40px}
+.hx-subj-ico{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;color:var(--hx-c);background:color-mix(in srgb,var(--hx-c) 12%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hx-c) 25%,transparent)}
+.hx-tag{font:500 .6875rem/1 var(--hx-mono);letter-spacing:.06em;text-transform:uppercase;padding:7px 10px;border-radius:999px;color:var(--hx-ink-3);box-shadow:inset 0 0 0 1px var(--hx-line-2)}
+.hx-tag.on{color:var(--hx-accent-ink);background:var(--hx-accent);box-shadow:none}
+.hx-subj ul{list-style:none;padding:0;margin:20px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.hx-subj li{padding:6px 11px;border-radius:999px;font-size:.8125rem;color:var(--hx-ink-2);background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--hx-line)}
+
+/* steps */
+.hx-steps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--hx-line)}
+.hx-step{position:relative;padding:28px 22px 8px 0}
+.hx-step+.hx-step{padding-left:22px;border-left:1px solid var(--hx-line)}
+.hx-step::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--hx-accent);transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--hx-ease);transition-delay:calc(.2s + var(--d,0) * 140ms)}
+.hx-step.is-in::before{transform:none}
+.hx-step-n{font:500 .75rem/1 var(--hx-mono);color:var(--hx-ink-3)}
+.hx-step-ico{display:grid;place-items:center;width:44px;height:44px;margin:22px 0 26px;border-radius:50%;color:var(--hx-accent);box-shadow:inset 0 0 0 1px var(--hx-line-2)}
+.hx-step h3{font-size:1.25rem;letter-spacing:-.03em}
+.hx-step p{margin-top:8px;font-size:.9375rem;line-height:1.55;color:var(--hx-ink-2)}
+
+/* split sections */
+.hx-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(36px,6vw,96px);align-items:center}
+.hx-flip>:first-child{order:2}
+.hx-ticks{list-style:none;padding:0;margin:32px 0 0;display:grid;gap:0}
+.hx-ticks li{display:flex;gap:14px;padding:16px 0;border-top:1px solid var(--hx-line);color:var(--hx-ink-3);font-size:.9375rem;line-height:1.5}
+.hx-ticks li:last-child{border-bottom:1px solid var(--hx-line)}
+.hx-ticks li>span{flex:none;display:grid;place-items:center;width:24px;height:24px;margin-top:1px;border-radius:50%;background:rgba(210,255,77,.12);color:var(--hx-accent)}
+.hx-ticks b{display:block;color:var(--hx-ink);font-weight:500;font-size:1rem;margin-bottom:2px}
+
+/* levels */
+.hx-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hx-level{min-height:240px;display:flex;flex-direction:column}
+.hx-bars{display:flex;align-items:flex-end;gap:5px;margin-bottom:auto;padding-bottom:36px}
+.hx-bars i{width:10px;border-radius:3px;background:rgba(255,255,255,.1)}
+.hx-bars i.on{background:var(--hx-accent)}
+
+/* final CTA: lime panel */
+.hx-final{position:relative;overflow:hidden;padding:clamp(40px,7vw,96px);border-radius:32px;background:var(--hx-accent);color:var(--hx-accent-ink)}
+.hx-final .hx-eyebrow{color:rgba(11,13,6,.6)}
+.hx-final h2{color:var(--hx-accent-ink);font-size:clamp(2.5rem,7vw,6rem);max-width:11ch;letter-spacing:-.055em;line-height:.95}
+.hx-final .hx-sub{color:rgba(11,13,6,.72)}
+.hx-final-kite{position:absolute;right:clamp(-20px,4vw,60px);top:50%;width:clamp(140px,22vw,280px);height:auto;transform:translateY(-50%) rotate(14deg);animation:hxKite 8s ease-in-out infinite;opacity:.95}
+@keyframes hxKite{0%,100%{transform:translateY(-50%) rotate(14deg)}50%{transform:translateY(-56%) rotate(8deg)}}
+
+/* footer */
+.hx-foot{padding-block:clamp(56px,8vw,96px) 40px;color:var(--hx-ink-3);font-size:.875rem}
+.hx-foot-in{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;justify-content:space-between;padding-top:26px;border-top:1px solid var(--hx-line)}
+
+@media (max-width:1080px){
+  .hx-float-a{left:-12px} .hx-float-b{right:-12px}
+}
+@media (max-width:900px){
+  .hx-nav{display:none}
+  .hx-actions{margin-left:auto}
+  .hx-split{grid-template-columns:1fr}
+  .hx-flip>:first-child{order:0}
+  .hx-steps{grid-template-columns:1fr 1fr}
+  .hx-step,.hx-step+.hx-step{padding:24px 16px 20px 0;border-left:0;border-bottom:1px solid var(--hx-line)}
+  .hx-stats-grid{grid-template-columns:1fr 1fr;row-gap:32px}
+  .hx-stat:nth-child(3){border-left:0;padding-left:0}
+  .hx-levels{grid-template-columns:1fr}
+  .hx-final-kite{opacity:.25}
+}
+@media (max-width:640px){
+  .hx-actions .hx-link{display:none}
+  .hx-bento{grid-template-columns:1fr}
+  .hx-subj,.hx-subj:nth-child(n){grid-column:auto;min-height:0}
+  .hx-steps{grid-template-columns:1fr}
+  .hx-float{display:none}
+  .hx-frame{padding:6px;border-radius:22px}
+  .hx-frame-bar span:first-of-type{display:none}
+  .hx-stat{padding-inline:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .hx-glow,.hx-dot,.hx-float,.hx-track,.hx-final-kite{animation:none}
+  .hx-w>span,.hx-in{animation:none;transform:none;opacity:1;filter:none}
+  .hx-rv{opacity:1;transform:none;transition:none}
+  .hx-step::before{transform:none;transition:none}
+}
 </style>
 <div id="app"></div>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
@@ -1228,117 +1444,136 @@ function weekChart(week, today = TODAY) {
   </div>`;
 }
 
-/* ---------- public homepage ---------- */
+/* ---------- public homepage (dark editorial theme, scoped to .hx) ---------- */
 function Home() {
   const d = DEMO.k1;
-  const html = `<div class="view">
-  <header class="pub-head"><div class="wrap pub-head-in">
+  const words = (t, base = 0) => t.split(' ').map((w, i) => `<span class="hx-w" style="--i:${base + i}"><span>${w}</span></span>`).join(' ');
+  const topics = SUBJECTS.flatMap(s => s.topics);
+  const html = `<div class="view hx">
+  <div class="hx-glow" aria-hidden="true"></div>
+  <header class="hx-head"><div class="wrap hx-head-in">
     ${logo('#home')}
-    <nav class="pub-nav" aria-label="On this page">
+    <nav class="hx-nav" aria-label="On this page">
       <button type="button" data-scroll="subjects">Subjects</button>
       <button type="button" data-scroll="how">How it works</button>
       <button type="button" data-scroll="teacher-feature">Teacher videos</button>
       <button type="button" data-scroll="parents">For parents</button>
     </nav>
-    <div class="pub-actions"><a class="btn btn-quiet btn-sm" href="#login">Log in</a><a class="btn btn-primary btn-sm" href="#join">Get started</a></div>
+    <div class="hx-actions"><a class="hx-link" href="#login">Log in</a><a class="hx-btn hx-btn-accent hx-btn-sm" href="#join">Get started</a></div>
   </div></header>
   <main>
-    <section class="hero"><div class="wrap hero-grid">
-      <div>
-        <p class="eyebrow">11+ learning for Years 3 to 6</p>
-        <h1>Learning your child can <span>see, touch</span> and understand.</h1>
-        <p class="lead">Kite Learning teaches 11+ Maths, English, Verbal and Non-Verbal Reasoning in small, clear steps. Every idea is shown with moving pictures, tried by hand, then practised until it sticks.</p>
-        <div class="cta-row"><a class="btn btn-primary btn-lg" href="#join">Get started ${icon('right')}</a><a class="btn btn-lg" href="#login">Log in</a></div>
-        <ul class="hero-points"><li>${icon('check', 18)} Pictures before symbols</li><li>${icon('check', 18)} A teacher writes out every step</li><li>${icon('check', 18)} Parents see real progress</li></ul>
-      </div>
-      <div class="hero-art">
-        <div class="demo card">
-          <svg class="hero-string" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M84 4C76 30 96 52 70 70S22 80 0 100"/></svg>
-          ${kite('hero-kite', true)}
-          <div class="demo-head"><span class="chip chip-blue">${icon('tap', 16)} Try it</span><span class="demo-hint">Tap a slice to colour it</span></div>
-          <div id="hero-lab"></div>
+    <section class="hx-hero"><div class="wrap">
+      <p class="hx-pill hx-in" style="--d:0"><span class="hx-dot"></span> 11+ learning for Years 3 to 6</p>
+      <h1 class="hx-h1">${words('Learning your child can')} <em>${words('see, touch', 4)}</em> ${words('and understand.', 6)}</h1>
+      <p class="hx-lead hx-in" style="--d:6">Kite Learning teaches 11+ Maths, English, Verbal and Non-Verbal Reasoning in small, clear steps. Every idea is shown with moving pictures, tried by hand, then practised until it sticks.</p>
+      <div class="hx-cta hx-in" style="--d:7"><a class="hx-btn hx-btn-accent" href="#join">Get started <span class="hx-arrow">${icon('right', 18)}</span></a><a class="hx-btn hx-btn-ghost" href="#login">Log in</a></div>
+
+      <div class="hx-stage hx-in" style="--d:9">
+        <div class="hx-float hx-float-a"><span class="hx-float-ico">${icon('check', 16)}</span><div><b>Pictures before symbols</b><span>Every idea starts visual</span></div></div>
+        <div class="hx-float hx-float-b"><span class="hx-float-ico">${icon('flame', 16)}</span><div><b>${d.streak}-day streak</b><span>Short daily sessions</span></div></div>
+        <div class="hx-frame">
+          <div class="hx-frame-bar"><i></i><i></i><i></i><span>Understanding Fractions · Explore</span><span class="hx-live">${icon('tap', 14)} Tap a slice</span></div>
+          <div class="hx-screen"><div id="hero-lab"></div></div>
         </div>
       </div>
     </div></section>
 
-    <section class="section" id="subjects"><div class="wrap">
-      <div class="section-head"><p class="eyebrow">Four subjects</p><h2>Everything the 11+ asks for, on one clear path.</h2>
-        <p class="sub">Each subject is split into topics, and each topic into short lessons that build from Foundation to Advanced.</p></div>
-      <div class="subj-grid">${SUBJECTS.map(s => `<article class="subj-card c-${s.c}">
-        <span class="subj-ico">${icon(s.ico, 28)}</span>
-        <div><h3>${s.name}</h3><p style="margin-top:6px">${s.line}</p></div>
-        <span class="chip ${s.live ? 'chip-good' : 'chip-line'}" style="align-self:flex-start">${s.live ? icon('check', 14) + ' Ready to try' : 'Coming soon'}</span>
+    <div class="hx-marquee" aria-hidden="true"><div class="hx-track">${[...topics, ...topics].map(t => `<span>${t}</span>`).join('<i>✦</i>')}<i>✦</i></div></div>
+
+    <section class="hx-stats"><div class="wrap hx-stats-grid">
+      ${[['4', 'subjects on one path'], ['5', 'steps in every lesson'], ['15', 'minutes per lesson'], ['3', 'levels, Foundation to Advanced']].map(([n, l], i) => `<div class="hx-stat hx-rv" style="--d:${i}"><b data-count="${n}">${n}</b><span>${l}</span></div>`).join('')}
+    </div></section>
+
+    <section class="hx-sec" id="subjects"><div class="wrap">
+      <div class="hx-sec-head hx-rv"><p class="hx-eyebrow">01 — Four subjects</p><h2>Everything the 11+ asks for, on one clear path.</h2>
+        <p class="hx-sub">Each subject is split into topics, and each topic into short lessons that build from Foundation to Advanced.</p></div>
+      <div class="hx-bento">${SUBJECTS.map((s, i) => `<article class="hx-card hx-subj c-${s.c} hx-rv" style="--d:${i}">
+        <div class="hx-card-top"><span class="hx-subj-ico">${icon(s.ico, 24)}</span><span class="hx-tag ${s.live ? 'on' : ''}">${s.live ? 'Ready to try' : 'Coming soon'}</span></div>
+        <h3>${s.name}</h3><p>${s.line}</p>
         <ul>${s.topics.map(t => `<li>${t}</li>`).join('')}</ul>
       </article>`).join('')}</div>
     </div></section>
 
-    <section class="section" id="how" style="padding-top:0"><div class="wrap">
-      <div class="section-head"><p class="eyebrow">How a lesson works</p><h2>Five small steps from first look to mastery.</h2>
-        <p class="sub">Every lesson follows the same order, so children always know what comes next.</p></div>
-      <ol class="how-grid">${[
+    <section class="hx-sec" id="how"><div class="wrap">
+      <div class="hx-sec-head hx-rv"><p class="hx-eyebrow">02 — How a lesson works</p><h2>Five small steps from first look to mastery.</h2>
+        <p class="hx-sub">Every lesson follows the same order, so children always know what comes next.</p></div>
+      <ol class="hx-steps">${[
         ['See it', 'A short animated story shows the idea with real objects.'],
         ['Play with it', 'Children move and colour shapes to find the pattern themselves.'],
         ['Follow an example', 'Worked examples show each step, one at a time.'],
         ['Practise', 'Questions get harder slowly, with hints and instant feedback.'],
         ['Show you know it', 'A short check confirms real understanding before moving on.'],
-      ].map((s, i) => `<li class="how"><span class="how-top"><span class="how-n">${i + 1}</span>${icon(STAGES[i].ico, 24)}</span><h3>${s[0]}</h3><p>${s[1]}</p></li>`).join('')}</ol>
+      ].map((s, i) => `<li class="hx-step hx-rv" style="--d:${i}"><span class="hx-step-n">0${i + 1}</span><span class="hx-step-ico">${icon(STAGES[i].ico, 22)}</span><h3>${s[0]}</h3><p>${s[1]}</p></li>`).join('')}</ol>
     </div></section>
 
-    <section class="section" id="teacher-feature" style="padding-top:0"><div class="wrap split">
-      <div>
-        <p class="eyebrow">Watch teacher explain</p><h2>A teacher writes out every step, just like in class.</h2>
-        <p class="sub">Each lesson ends with a handwritten explanation your child can pause, replay or slow down.</p>
-        <ul class="ticks">
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Written by hand, one step at a time</b><span>Numbers, diagrams and labels appear as the teacher talks.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Thinking time built in</b><span>The teacher pauses so your child can answer first.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Captions and a calm reading voice</b><span>Helpful for children who find reading hard work.</span></div></li>
+    <section class="hx-sec" id="teacher-feature"><div class="wrap hx-split">
+      <div class="hx-rv">
+        <p class="hx-eyebrow">03 — Watch teacher explain</p><h2>A teacher writes out every step, just like in class.</h2>
+        <p class="hx-sub">Each lesson ends with a handwritten explanation your child can pause, replay or slow down.</p>
+        <ul class="hx-ticks">
+          <li><span>${icon('check', 14)}</span><div><b>Written by hand, one step at a time</b>Numbers, diagrams and labels appear as the teacher talks.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Thinking time built in</b>The teacher pauses so your child can answer first.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Captions and a calm reading voice</b>Helpful for children who find reading hard work.</div></li>
         </ul>
-        <div class="cta-row"><button type="button" class="btn btn-dark" data-action="sample-teacher">${icon('play', 18)} Watch the sample</button></div>
+        <div class="hx-cta"><button type="button" class="hx-btn hx-btn-light" data-action="sample-teacher">${icon('play', 18)} Watch the sample</button></div>
       </div>
-      <div class="board-preview" id="home-board"></div>
+      <div class="hx-frame hx-rv" style="--d:2"><div class="hx-screen hx-screen-flush"><div class="board-preview" id="home-board"></div></div></div>
     </div></section>
 
-    <section class="section" id="parents" style="padding-top:0"><div class="wrap split flip">
-      <div class="mini-dash" aria-label="Example of the parent view">
-        <div class="mini-dash-head c-blue"><span class="avatar">M</span><div><b>Maya's week</b><span>Year 4 · sample data</span></div><span class="chip chip-good" style="margin-left:auto">${icon('flame', 14)} ${d.streak} days</span></div>
-        ${weekChart(d.week, 4)}
-        <div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Times tables: 7s and 8s</b><span>Try five quick questions at breakfast this week.</span></div></div>
-      </div>
-      <div>
-        <p class="eyebrow">For parents</p><h2>Know exactly how your child is doing.</h2>
-        <p class="sub">The parent view shows time spent, what has been mastered and where a little help is needed.</p>
-        <ul class="ticks">
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>The week at a glance</b><span>Minutes learned each day and lessons finished.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Strengths and sticking points</b><span>See the exact idea your child found hard, with a tip for helping at home.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Short sessions that fit family life</b><span>A lesson takes about 15 minutes and always saves its place.</span></div></li>
+    <section class="hx-sec" id="parents"><div class="wrap hx-split hx-flip">
+      <div class="hx-frame hx-rv" style="--d:2"><div class="hx-screen">
+        <div class="mini-dash" aria-label="Example of the parent view">
+          <div class="mini-dash-head c-blue"><span class="avatar">M</span><div><b>Maya's week</b><span>Year 4 · sample data</span></div><span class="chip chip-good" style="margin-left:auto">${icon('flame', 14)} ${d.streak} days</span></div>
+          ${weekChart(d.week, 4)}
+          <div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Times tables: 7s and 8s</b><span>Try five quick questions at breakfast this week.</span></div></div>
+        </div>
+      </div></div>
+      <div class="hx-rv">
+        <p class="hx-eyebrow">04 — For parents</p><h2>Know exactly how your child is doing.</h2>
+        <p class="hx-sub">The parent view shows time spent, what has been mastered and where a little help is needed.</p>
+        <ul class="hx-ticks">
+          <li><span>${icon('check', 14)}</span><div><b>The week at a glance</b>Minutes learned each day and lessons finished.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Strengths and sticking points</b>See the exact idea your child found hard, with a tip for helping at home.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Short sessions that fit family life</b>A lesson takes about 15 minutes and always saves its place.</div></li>
         </ul>
       </div>
     </div></section>
 
-    <section class="section" style="padding-top:0"><div class="wrap">
-      <div class="section-head"><p class="eyebrow">Every learner</p><h2>Starts where your child is. Climbs when they are ready.</h2></div>
-      <div class="levels">${[
+    <section class="hx-sec"><div class="wrap">
+      <div class="hx-sec-head hx-rv"><p class="hx-eyebrow">05 — Every learner</p><h2>Starts where your child is. Climbs when they are ready.</h2></div>
+      <div class="hx-levels">${[
         ['Foundation', 'The big idea, shown with pictures and objects. Extra hints and worked examples for children who need more time.'],
         ['Intermediate', 'Methods and fluency. Mixed practice so each skill stays secure.'],
         ['Advanced', '11+ exam-style problems that need several steps. Children who are ready can skip ahead.'],
-      ].map((l, i) => `<article class="level"><span class="level-bars" aria-hidden="true">${[14, 24, 34].map((h, j) => `<i class="${j <= i ? 'on' : ''}" style="height:${h}px"></i>`).join('')}</span><h3>${l[0]}</h3><p>${l[1]}</p></article>`).join('')}</div>
+      ].map((l, i) => `<article class="hx-card hx-level hx-rv" style="--d:${i}"><span class="hx-bars" aria-hidden="true">${[14, 24, 34].map((h, j) => `<i class="${j <= i ? 'on' : ''}" style="height:${h}px"></i>`).join('')}</span><h3>${l[0]}</h3><p>${l[1]}</p></article>`).join('')}</div>
     </div></section>
 
-    <section class="section" style="padding-top:0"><div class="wrap">
-      <div class="cta-band on-dark">
-        <div><h2>Ready for the first lesson?</h2><p>Create an account and start with Understanding Fractions. It takes about 15 minutes.</p>
-          <div class="cta-row"><a class="btn btn-primary btn-lg" href="#join">Get started ${icon('right')}</a><a class="btn btn-lg" href="#login">Log in</a></div></div>
-        ${kite('cta-kite')}
+    <section class="hx-sec"><div class="wrap">
+      <div class="hx-final hx-rv">
+        <p class="hx-eyebrow">Start today</p>
+        <h2>Ready for the first lesson?</h2>
+        <p class="hx-sub">Create an account and start with Understanding Fractions. It takes about 15 minutes.</p>
+        <div class="hx-cta"><a class="hx-btn hx-btn-dark" href="#join">Get started <span class="hx-arrow">${icon('right', 18)}</span></a><a class="hx-btn hx-btn-outline" href="#login">Log in</a></div>
+        ${kite('hx-final-kite')}
       </div>
     </div></section>
   </main>
-  <footer class="pub-foot"><div class="wrap"><div class="pub-foot-in">${logo('#home')}<span>Phase 1 prototype. The Fractions lesson in Mathematics is ready to explore.</span></div></div></footer>
+  <footer class="hx-foot"><div class="wrap hx-foot-in">${logo('#home')}<span>Phase 1 prototype. The Fractions lesson in Mathematics is ready to explore.</span></div></footer>
   </div>`;
   return {
     html,
     mount(root) {
       mountLab($('#hero-lab', root), { compact: true, n: 4, on: [0], shape: 'pie' });
       Teacher.poster($('#home-board', root));
+      const els = root.querySelectorAll('.hx-rv');
+      if (REDUCED || !('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('is-in')); return; }
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in'); io.unobserve(e.target);
+        const b = e.target.querySelector('[data-count]');
+        if (b) { const n = +b.dataset.count, t0 = performance.now(); const tick = t => { const k = Math.min(1, (t - t0) / 900); b.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); }; b.textContent = '0'; requestAnimationFrame(tick); }
+      }), { threshold: .15, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(e => io.observe(e));
     },
   };
 }

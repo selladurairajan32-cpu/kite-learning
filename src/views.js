@@ -44,117 +44,136 @@ function weekChart(week, today = TODAY) {
   </div>`;
 }
 
-/* ---------- public homepage ---------- */
+/* ---------- public homepage (dark editorial theme, scoped to .hx) ---------- */
 function Home() {
   const d = DEMO.k1;
-  const html = `<div class="view">
-  <header class="pub-head"><div class="wrap pub-head-in">
+  const words = (t, base = 0) => t.split(' ').map((w, i) => `<span class="hx-w" style="--i:${base + i}"><span>${w}</span></span>`).join(' ');
+  const topics = SUBJECTS.flatMap(s => s.topics);
+  const html = `<div class="view hx">
+  <div class="hx-glow" aria-hidden="true"></div>
+  <header class="hx-head"><div class="wrap hx-head-in">
     ${logo('#home')}
-    <nav class="pub-nav" aria-label="On this page">
+    <nav class="hx-nav" aria-label="On this page">
       <button type="button" data-scroll="subjects">Subjects</button>
       <button type="button" data-scroll="how">How it works</button>
       <button type="button" data-scroll="teacher-feature">Teacher videos</button>
       <button type="button" data-scroll="parents">For parents</button>
     </nav>
-    <div class="pub-actions"><a class="btn btn-quiet btn-sm" href="#login">Log in</a><a class="btn btn-primary btn-sm" href="#join">Get started</a></div>
+    <div class="hx-actions"><a class="hx-link" href="#login">Log in</a><a class="hx-btn hx-btn-accent hx-btn-sm" href="#join">Get started</a></div>
   </div></header>
   <main>
-    <section class="hero"><div class="wrap hero-grid">
-      <div>
-        <p class="eyebrow">11+ learning for Years 3 to 6</p>
-        <h1>Learning your child can <span>see, touch</span> and understand.</h1>
-        <p class="lead">Kite Learning teaches 11+ Maths, English, Verbal and Non-Verbal Reasoning in small, clear steps. Every idea is shown with moving pictures, tried by hand, then practised until it sticks.</p>
-        <div class="cta-row"><a class="btn btn-primary btn-lg" href="#join">Get started ${icon('right')}</a><a class="btn btn-lg" href="#login">Log in</a></div>
-        <ul class="hero-points"><li>${icon('check', 18)} Pictures before symbols</li><li>${icon('check', 18)} A teacher writes out every step</li><li>${icon('check', 18)} Parents see real progress</li></ul>
-      </div>
-      <div class="hero-art">
-        <div class="demo card">
-          <svg class="hero-string" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M84 4C76 30 96 52 70 70S22 80 0 100"/></svg>
-          ${kite('hero-kite', true)}
-          <div class="demo-head"><span class="chip chip-blue">${icon('tap', 16)} Try it</span><span class="demo-hint">Tap a slice to colour it</span></div>
-          <div id="hero-lab"></div>
+    <section class="hx-hero"><div class="wrap">
+      <p class="hx-pill hx-in" style="--d:0"><span class="hx-dot"></span> 11+ learning for Years 3 to 6</p>
+      <h1 class="hx-h1">${words('Learning your child can')} <em>${words('see, touch', 4)}</em> ${words('and understand.', 6)}</h1>
+      <p class="hx-lead hx-in" style="--d:6">Kite Learning teaches 11+ Maths, English, Verbal and Non-Verbal Reasoning in small, clear steps. Every idea is shown with moving pictures, tried by hand, then practised until it sticks.</p>
+      <div class="hx-cta hx-in" style="--d:7"><a class="hx-btn hx-btn-accent" href="#join">Get started <span class="hx-arrow">${icon('right', 18)}</span></a><a class="hx-btn hx-btn-ghost" href="#login">Log in</a></div>
+
+      <div class="hx-stage hx-in" style="--d:9">
+        <div class="hx-float hx-float-a"><span class="hx-float-ico">${icon('check', 16)}</span><div><b>Pictures before symbols</b><span>Every idea starts visual</span></div></div>
+        <div class="hx-float hx-float-b"><span class="hx-float-ico">${icon('flame', 16)}</span><div><b>${d.streak}-day streak</b><span>Short daily sessions</span></div></div>
+        <div class="hx-frame">
+          <div class="hx-frame-bar"><i></i><i></i><i></i><span>Understanding Fractions · Explore</span><span class="hx-live">${icon('tap', 14)} Tap a slice</span></div>
+          <div class="hx-screen"><div id="hero-lab"></div></div>
         </div>
       </div>
     </div></section>
 
-    <section class="section" id="subjects"><div class="wrap">
-      <div class="section-head"><p class="eyebrow">Four subjects</p><h2>Everything the 11+ asks for, on one clear path.</h2>
-        <p class="sub">Each subject is split into topics, and each topic into short lessons that build from Foundation to Advanced.</p></div>
-      <div class="subj-grid">${SUBJECTS.map(s => `<article class="subj-card c-${s.c}">
-        <span class="subj-ico">${icon(s.ico, 28)}</span>
-        <div><h3>${s.name}</h3><p style="margin-top:6px">${s.line}</p></div>
-        <span class="chip ${s.live ? 'chip-good' : 'chip-line'}" style="align-self:flex-start">${s.live ? icon('check', 14) + ' Ready to try' : 'Coming soon'}</span>
+    <div class="hx-marquee" aria-hidden="true"><div class="hx-track">${[...topics, ...topics].map(t => `<span>${t}</span>`).join('<i>✦</i>')}<i>✦</i></div></div>
+
+    <section class="hx-stats"><div class="wrap hx-stats-grid">
+      ${[['4', 'subjects on one path'], ['5', 'steps in every lesson'], ['15', 'minutes per lesson'], ['3', 'levels, Foundation to Advanced']].map(([n, l], i) => `<div class="hx-stat hx-rv" style="--d:${i}"><b data-count="${n}">${n}</b><span>${l}</span></div>`).join('')}
+    </div></section>
+
+    <section class="hx-sec" id="subjects"><div class="wrap">
+      <div class="hx-sec-head hx-rv"><p class="hx-eyebrow">01 — Four subjects</p><h2>Everything the 11+ asks for, on one clear path.</h2>
+        <p class="hx-sub">Each subject is split into topics, and each topic into short lessons that build from Foundation to Advanced.</p></div>
+      <div class="hx-bento">${SUBJECTS.map((s, i) => `<article class="hx-card hx-subj c-${s.c} hx-rv" style="--d:${i}">
+        <div class="hx-card-top"><span class="hx-subj-ico">${icon(s.ico, 24)}</span><span class="hx-tag ${s.live ? 'on' : ''}">${s.live ? 'Ready to try' : 'Coming soon'}</span></div>
+        <h3>${s.name}</h3><p>${s.line}</p>
         <ul>${s.topics.map(t => `<li>${t}</li>`).join('')}</ul>
       </article>`).join('')}</div>
     </div></section>
 
-    <section class="section" id="how" style="padding-top:0"><div class="wrap">
-      <div class="section-head"><p class="eyebrow">How a lesson works</p><h2>Five small steps from first look to mastery.</h2>
-        <p class="sub">Every lesson follows the same order, so children always know what comes next.</p></div>
-      <ol class="how-grid">${[
+    <section class="hx-sec" id="how"><div class="wrap">
+      <div class="hx-sec-head hx-rv"><p class="hx-eyebrow">02 — How a lesson works</p><h2>Five small steps from first look to mastery.</h2>
+        <p class="hx-sub">Every lesson follows the same order, so children always know what comes next.</p></div>
+      <ol class="hx-steps">${[
         ['See it', 'A short animated story shows the idea with real objects.'],
         ['Play with it', 'Children move and colour shapes to find the pattern themselves.'],
         ['Follow an example', 'Worked examples show each step, one at a time.'],
         ['Practise', 'Questions get harder slowly, with hints and instant feedback.'],
         ['Show you know it', 'A short check confirms real understanding before moving on.'],
-      ].map((s, i) => `<li class="how"><span class="how-top"><span class="how-n">${i + 1}</span>${icon(STAGES[i].ico, 24)}</span><h3>${s[0]}</h3><p>${s[1]}</p></li>`).join('')}</ol>
+      ].map((s, i) => `<li class="hx-step hx-rv" style="--d:${i}"><span class="hx-step-n">0${i + 1}</span><span class="hx-step-ico">${icon(STAGES[i].ico, 22)}</span><h3>${s[0]}</h3><p>${s[1]}</p></li>`).join('')}</ol>
     </div></section>
 
-    <section class="section" id="teacher-feature" style="padding-top:0"><div class="wrap split">
-      <div>
-        <p class="eyebrow">Watch teacher explain</p><h2>A teacher writes out every step, just like in class.</h2>
-        <p class="sub">Each lesson ends with a handwritten explanation your child can pause, replay or slow down.</p>
-        <ul class="ticks">
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Written by hand, one step at a time</b><span>Numbers, diagrams and labels appear as the teacher talks.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Thinking time built in</b><span>The teacher pauses so your child can answer first.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Captions and a calm reading voice</b><span>Helpful for children who find reading hard work.</span></div></li>
+    <section class="hx-sec" id="teacher-feature"><div class="wrap hx-split">
+      <div class="hx-rv">
+        <p class="hx-eyebrow">03 — Watch teacher explain</p><h2>A teacher writes out every step, just like in class.</h2>
+        <p class="hx-sub">Each lesson ends with a handwritten explanation your child can pause, replay or slow down.</p>
+        <ul class="hx-ticks">
+          <li><span>${icon('check', 14)}</span><div><b>Written by hand, one step at a time</b>Numbers, diagrams and labels appear as the teacher talks.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Thinking time built in</b>The teacher pauses so your child can answer first.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Captions and a calm reading voice</b>Helpful for children who find reading hard work.</div></li>
         </ul>
-        <div class="cta-row"><button type="button" class="btn btn-dark" data-action="sample-teacher">${icon('play', 18)} Watch the sample</button></div>
+        <div class="hx-cta"><button type="button" class="hx-btn hx-btn-light" data-action="sample-teacher">${icon('play', 18)} Watch the sample</button></div>
       </div>
-      <div class="board-preview" id="home-board"></div>
+      <div class="hx-frame hx-rv" style="--d:2"><div class="hx-screen hx-screen-flush"><div class="board-preview" id="home-board"></div></div></div>
     </div></section>
 
-    <section class="section" id="parents" style="padding-top:0"><div class="wrap split flip">
-      <div class="mini-dash" aria-label="Example of the parent view">
-        <div class="mini-dash-head c-blue"><span class="avatar">M</span><div><b>Maya's week</b><span>Year 4 · sample data</span></div><span class="chip chip-good" style="margin-left:auto">${icon('flame', 14)} ${d.streak} days</span></div>
-        ${weekChart(d.week, 4)}
-        <div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Times tables: 7s and 8s</b><span>Try five quick questions at breakfast this week.</span></div></div>
-      </div>
-      <div>
-        <p class="eyebrow">For parents</p><h2>Know exactly how your child is doing.</h2>
-        <p class="sub">The parent view shows time spent, what has been mastered and where a little help is needed.</p>
-        <ul class="ticks">
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>The week at a glance</b><span>Minutes learned each day and lessons finished.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Strengths and sticking points</b><span>See the exact idea your child found hard, with a tip for helping at home.</span></div></li>
-          <li><span class="t-ico">${icon('check', 16)}</span><div><b>Short sessions that fit family life</b><span>A lesson takes about 15 minutes and always saves its place.</span></div></li>
+    <section class="hx-sec" id="parents"><div class="wrap hx-split hx-flip">
+      <div class="hx-frame hx-rv" style="--d:2"><div class="hx-screen">
+        <div class="mini-dash" aria-label="Example of the parent view">
+          <div class="mini-dash-head c-blue"><span class="avatar">M</span><div><b>Maya's week</b><span>Year 4 · sample data</span></div><span class="chip chip-good" style="margin-left:auto">${icon('flame', 14)} ${d.streak} days</span></div>
+          ${weekChart(d.week, 4)}
+          <div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Times tables: 7s and 8s</b><span>Try five quick questions at breakfast this week.</span></div></div>
+        </div>
+      </div></div>
+      <div class="hx-rv">
+        <p class="hx-eyebrow">04 — For parents</p><h2>Know exactly how your child is doing.</h2>
+        <p class="hx-sub">The parent view shows time spent, what has been mastered and where a little help is needed.</p>
+        <ul class="hx-ticks">
+          <li><span>${icon('check', 14)}</span><div><b>The week at a glance</b>Minutes learned each day and lessons finished.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Strengths and sticking points</b>See the exact idea your child found hard, with a tip for helping at home.</div></li>
+          <li><span>${icon('check', 14)}</span><div><b>Short sessions that fit family life</b>A lesson takes about 15 minutes and always saves its place.</div></li>
         </ul>
       </div>
     </div></section>
 
-    <section class="section" style="padding-top:0"><div class="wrap">
-      <div class="section-head"><p class="eyebrow">Every learner</p><h2>Starts where your child is. Climbs when they are ready.</h2></div>
-      <div class="levels">${[
+    <section class="hx-sec"><div class="wrap">
+      <div class="hx-sec-head hx-rv"><p class="hx-eyebrow">05 — Every learner</p><h2>Starts where your child is. Climbs when they are ready.</h2></div>
+      <div class="hx-levels">${[
         ['Foundation', 'The big idea, shown with pictures and objects. Extra hints and worked examples for children who need more time.'],
         ['Intermediate', 'Methods and fluency. Mixed practice so each skill stays secure.'],
         ['Advanced', '11+ exam-style problems that need several steps. Children who are ready can skip ahead.'],
-      ].map((l, i) => `<article class="level"><span class="level-bars" aria-hidden="true">${[14, 24, 34].map((h, j) => `<i class="${j <= i ? 'on' : ''}" style="height:${h}px"></i>`).join('')}</span><h3>${l[0]}</h3><p>${l[1]}</p></article>`).join('')}</div>
+      ].map((l, i) => `<article class="hx-card hx-level hx-rv" style="--d:${i}"><span class="hx-bars" aria-hidden="true">${[14, 24, 34].map((h, j) => `<i class="${j <= i ? 'on' : ''}" style="height:${h}px"></i>`).join('')}</span><h3>${l[0]}</h3><p>${l[1]}</p></article>`).join('')}</div>
     </div></section>
 
-    <section class="section" style="padding-top:0"><div class="wrap">
-      <div class="cta-band on-dark">
-        <div><h2>Ready for the first lesson?</h2><p>Create an account and start with Understanding Fractions. It takes about 15 minutes.</p>
-          <div class="cta-row"><a class="btn btn-primary btn-lg" href="#join">Get started ${icon('right')}</a><a class="btn btn-lg" href="#login">Log in</a></div></div>
-        ${kite('cta-kite')}
+    <section class="hx-sec"><div class="wrap">
+      <div class="hx-final hx-rv">
+        <p class="hx-eyebrow">Start today</p>
+        <h2>Ready for the first lesson?</h2>
+        <p class="hx-sub">Create an account and start with Understanding Fractions. It takes about 15 minutes.</p>
+        <div class="hx-cta"><a class="hx-btn hx-btn-dark" href="#join">Get started <span class="hx-arrow">${icon('right', 18)}</span></a><a class="hx-btn hx-btn-outline" href="#login">Log in</a></div>
+        ${kite('hx-final-kite')}
       </div>
     </div></section>
   </main>
-  <footer class="pub-foot"><div class="wrap"><div class="pub-foot-in">${logo('#home')}<span>Phase 1 prototype. The Fractions lesson in Mathematics is ready to explore.</span></div></div></footer>
+  <footer class="hx-foot"><div class="wrap hx-foot-in">${logo('#home')}<span>Phase 1 prototype. The Fractions lesson in Mathematics is ready to explore.</span></div></footer>
   </div>`;
   return {
     html,
     mount(root) {
       mountLab($('#hero-lab', root), { compact: true, n: 4, on: [0], shape: 'pie' });
       Teacher.poster($('#home-board', root));
+      const els = root.querySelectorAll('.hx-rv');
+      if (REDUCED || !('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('is-in')); return; }
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in'); io.unobserve(e.target);
+        const b = e.target.querySelector('[data-count]');
+        if (b) { const n = +b.dataset.count, t0 = performance.now(); const tick = t => { const k = Math.min(1, (t - t0) / 900); b.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); }; b.textContent = '0'; requestAnimationFrame(tick); }
+      }), { threshold: .15, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(e => io.observe(e));
     },
   };
 }
