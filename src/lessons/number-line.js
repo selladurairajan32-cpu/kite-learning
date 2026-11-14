@@ -362,7 +362,7 @@
   const mastery = [
     { skill: 'place', type: 'place', prompt: `Put the dot on ${frac(3, 5)}`, say: 'Put the dot on three fifths.', n: 5, at: 3, why: 'The line has 5 equal jumps. Three jumps from 0 lands on three fifths.' },
     { skill: 'read', type: 'build', prompt: 'Write the fraction the arrow is pointing to.', view: pin(6, 5), ans: [5, 6], why: '6 equal jumps from 0 to 1, and the arrow is 5 jumps from 0. That is five sixths.' },
-    { skill: 'jumps', type: 'pick', col: true, prompt: 'Which number line is cut into <b>quarters</b>?',
+    { skill: 'jumps', type: 'pick', wide: true, prompt: 'Which number line is cut into <b>quarters</b>?',
       opts: [{ html: () => nline({ n: 3 }), label: 'A line with 4 marks and 3 equal jumps' }, { html: () => nline({ n: 4, w: [0.1, 0.2, 0.3, 0.4] }), label: 'A line with 4 jumps of different sizes' },
         { html: () => nline({ n: 4 }), label: 'A line with 5 marks and 4 equal jumps' }, { html: () => nline({ n: 5 }), label: 'A line with 6 marks and 5 equal jumps' }], ans: 2,
       why: 'Quarters need 4 equal jumps from 0 to 1. Count the jumps, not the marks.' },
@@ -397,7 +397,7 @@
       { say: 'The bottom number is five. So I cut the line into five equal jumps.', ops: [w('bottom: 5 equal jumps', 470, 100, { size: 36, c: 'blue', maxW: 390, wait: 600 }), ...marks([234, 378, 522, 666], 400, { wait: 300 })] },
       { say: 'The top number is three. How many jumps should I make from zero? Have a think.', ops: [w('top: 3 jumps from 0', 470, 160, { size: 36, c: 'orange', maxW: 390 }), think(3200)] },
       { say: 'Three jumps. One, two, three.', ops: [0, 1, 2].flatMap(i => [hop(90 + i * 144, 234 + i * 144, 386, { c: 'orange', gap: 40 }), num(i + 1, 162 + i * 144, 312, { c: 'orange', size: 36, gap: 140 })]) },
-      { say: 'Here it is. Three fifths.', ops: [dot(522, 400), fr(522, 458, 3, 5, { size: 44, wait: 300 }), loop(522, 466, 46, 62, { c: 'green' })], hold: 1000 },
+      { say: 'Here it is. Three fifths.', ops: [dot(522, 400), fr(522, 480, 3, 5, { size: 44, wait: 300 }), loop(522, 488, 48, 64, { c: 'green' })], hold: 1000 },
     ] },
     { title: 'Jumps, not marks', steps: [
       { say: 'Be careful with this next one.', ops: [w('Count the jumps!', 56, 96, { size: 62, b: 1, id: 't4' }), und('t4', { c: 'orange' })] },

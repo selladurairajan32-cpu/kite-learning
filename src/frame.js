@@ -181,6 +181,7 @@ function renderExamples(el, l) {
 /* ---------- Questions: practice and the mastery check share one engine ----------
    Question types
      pick   choose one answer: opts are { f:[n,d] } | { t:'words' } | { n: number } | { fig } | { html, label }
+            col lists the answers in one column; wide gives picture answers a full row each on a phone
      shade  colour parts of a fraction picture: fig, need
      place  tap a mark on a number line: n jumps (w for unequal), at = the right mark
      build  write a fraction with the number pad: ans [n, d]
@@ -197,7 +198,7 @@ function renderQ(el, l, mode) {
   const pips = set.map((_, i) => { const r = pr ? st.log[i] : st.ans[i]; return `<i class="${i === st.i ? 'cur' : r ? ((pr ? r.first : r.ok) ? 'ok' : 'miss') : ''}"></i>`; }).join('');
   const figHTML = q.type === 'shade' ? fig(q.fig, { tap: true }) : q.type === 'place' ? nline({ n: q.n, w: q.w }, { tap: true }) : q.view ? q.view() : q.fig ? fig(q.fig) : '';
   let answer = '';
-  if (q.type === 'pick') answer = `<div class="opts ${q.col ? 'col' : ''}" role="group" aria-label="Answers">${q.opts.map((o, i) => `<button type="button" class="opt" data-action="q-opt" data-i="${i}" aria-pressed="false" aria-label="${esc(optLabel(o))}">${optHTML(o)}</button>`).join('')}</div>`;
+  if (q.type === 'pick') answer = `<div class="opts ${q.col ? 'col' : ''} ${q.wide ? 'wide' : ''}" role="group" aria-label="Answers">${q.opts.map((o, i) => `<button type="button" class="opt" data-action="q-opt" data-i="${i}" aria-pressed="false" aria-label="${esc(optLabel(o))}">${optHTML(o)}</button>`).join('')}</div>`;
   if (q.type === 'shade') answer = `<p class="q-help">${icon('tap', 18)} Tap the parts to colour them. Tap again to undo.</p>`;
   if (q.type === 'place') answer = `<p class="q-help">${icon('tap', 18)} Tap a mark on the line to put the dot there.</p>`;
   if (q.type === 'build') answer = `<div class="buildq"><div class="slots"><button type="button" class="slot-btn top" data-action="q-slot" data-s="top" aria-pressed="true" aria-label="Top number"></button><span class="line"></span><button type="button" class="slot-btn bot" data-action="q-slot" data-s="bot" aria-pressed="false" aria-label="Bottom number"></button></div>

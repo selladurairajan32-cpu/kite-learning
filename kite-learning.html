@@ -691,6 +691,7 @@ svg{display:block}
 .build.is-stack #ex-fig{display:block;width:100%;max-width:470px}
 .q-fig .nl{max-width:520px}
 .opt .nl{max-width:330px}
+.opts.wide .opt{min-height:96px}
 .opt-n{font:800 2rem/1 var(--font-display)}
 .fb .nl{max-width:320px;margin-top:10px}
 
@@ -816,7 +817,8 @@ svg{display:block}
   .subj-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .how-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .topic-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .lesson-name{flex:none;max-width:42%}
+  .lesson-name{flex:0 1 auto;min-width:0;max-width:38%}
+  .lesson-name strong{white-space:normal;line-height:1.15}
   .step:not(.is-current) .step-label{display:none}
   .step:not(.is-current){padding:0 7px}
   .player{grid-template-columns:1fr}
@@ -842,6 +844,8 @@ svg{display:block}
   .subject-head{grid-template-columns:auto minmax(0,1fr)}
   .overall{grid-column:1/-1}
   .say{max-width:none}
+  .to-teacher span{display:none}
+  .to-teacher{padding:0;width:44px}
   .stage-card{min-height:0}
   .lab-compact{grid-template-columns:1fr}
   .lab-line .lab-side{grid-template-columns:1fr}
@@ -863,7 +867,7 @@ svg{display:block}
   .reco{grid-template-columns:auto minmax(0,1fr)}
   .reco .btn{grid-column:1/-1}
   .lesson-bar-in{flex-wrap:wrap;row-gap:8px}
-  .lesson-name{flex:1}
+  .lesson-name{flex:1;max-width:none}
   .stepper{order:5;width:100%;margin:0}
   .stepper li{flex:1}
   .stepper li+li::before{display:none}
@@ -887,6 +891,7 @@ svg{display:block}
   .now-steps li span{display:none}
   .opts{gap:10px}
   .opt{min-height:76px}
+  .opts.wide{grid-template-columns:1fr}
   .q-fig{min-height:0;padding:14px}
   .q-fig .fig-pie,.q-fig .fig-grid,.q-fig .fig-strips{max-width:176px}
   .viz{min-height:0}
@@ -2040,6 +2045,7 @@ function renderExamples(el, l) {
 /* ---------- Questions: practice and the mastery check share one engine ----------
    Question types
      pick   choose one answer: opts are { f:[n,d] } | { t:'words' } | { n: number } | { fig } | { html, label }
+            col lists the answers in one column; wide gives picture answers a full row each on a phone
      shade  colour parts of a fraction picture: fig, need
      place  tap a mark on a number line: n jumps (w for unequal), at = the right mark
      build  write a fraction with the number pad: ans [n, d]
@@ -2056,7 +2062,7 @@ function renderQ(el, l, mode) {
   const pips = set.map((_, i) => { const r = pr ? st.log[i] : st.ans[i]; return `<i class="${i === st.i ? 'cur' : r ? ((pr ? r.first : r.ok) ? 'ok' : 'miss') : ''}"></i>`; }).join('');
   const figHTML = q.type === 'shade' ? fig(q.fig, { tap: true }) : q.type === 'place' ? nline({ n: q.n, w: q.w }, { tap: true }) : q.view ? q.view() : q.fig ? fig(q.fig) : '';
   let answer = '';
-  if (q.type === 'pick') answer = `<div class="opts ${q.col ? 'col' : ''}" role="group" aria-label="Answers">${q.opts.map((o, i) => `<button type="button" class="opt" data-action="q-opt" data-i="${i}" aria-pressed="false" aria-label="${esc(optLabel(o))}">${optHTML(o)}</button>`).join('')}</div>`;
+  if (q.type === 'pick') answer = `<div class="opts ${q.col ? 'col' : ''} ${q.wide ? 'wide' : ''}" role="group" aria-label="Answers">${q.opts.map((o, i) => `<button type="button" class="opt" data-action="q-opt" data-i="${i}" aria-pressed="false" aria-label="${esc(optLabel(o))}">${optHTML(o)}</button>`).join('')}</div>`;
   if (q.type === 'shade') answer = `<p class="q-help">${icon('tap', 18)} Tap the parts to colour them. Tap again to undo.</p>`;
   if (q.type === 'place') answer = `<p class="q-help">${icon('tap', 18)} Tap a mark on the line to put the dot there.</p>`;
   if (q.type === 'build') answer = `<div class="buildq"><div class="slots"><button type="button" class="slot-btn top" data-action="q-slot" data-s="top" aria-pressed="true" aria-label="Top number"></button><span class="line"></span><button type="button" class="slot-btn bot" data-action="q-slot" data-s="bot" aria-pressed="false" aria-label="Bottom number"></button></div>
@@ -2617,7 +2623,7 @@ function Lesson(id) {
   const mastery = [
     { skill: 'place', type: 'place', prompt: `Put the dot on ${frac(3, 5)}`, say: 'Put the dot on three fifths.', n: 5, at: 3, why: 'The line has 5 equal jumps. Three jumps from 0 lands on three fifths.' },
     { skill: 'read', type: 'build', prompt: 'Write the fraction the arrow is pointing to.', view: pin(6, 5), ans: [5, 6], why: '6 equal jumps from 0 to 1, and the arrow is 5 jumps from 0. That is five sixths.' },
-    { skill: 'jumps', type: 'pick', col: true, prompt: 'Which number line is cut into <b>quarters</b>?',
+    { skill: 'jumps', type: 'pick', wide: true, prompt: 'Which number line is cut into <b>quarters</b>?',
       opts: [{ html: () => nline({ n: 3 }), label: 'A line with 4 marks and 3 equal jumps' }, { html: () => nline({ n: 4, w: [0.1, 0.2, 0.3, 0.4] }), label: 'A line with 4 jumps of different sizes' },
         { html: () => nline({ n: 4 }), label: 'A line with 5 marks and 4 equal jumps' }, { html: () => nline({ n: 5 }), label: 'A line with 6 marks and 5 equal jumps' }], ans: 2,
       why: 'Quarters need 4 equal jumps from 0 to 1. Count the jumps, not the marks.' },
@@ -2652,7 +2658,7 @@ function Lesson(id) {
       { say: 'The bottom number is five. So I cut the line into five equal jumps.', ops: [w('bottom: 5 equal jumps', 470, 100, { size: 36, c: 'blue', maxW: 390, wait: 600 }), ...marks([234, 378, 522, 666], 400, { wait: 300 })] },
       { say: 'The top number is three. How many jumps should I make from zero? Have a think.', ops: [w('top: 3 jumps from 0', 470, 160, { size: 36, c: 'orange', maxW: 390 }), think(3200)] },
       { say: 'Three jumps. One, two, three.', ops: [0, 1, 2].flatMap(i => [hop(90 + i * 144, 234 + i * 144, 386, { c: 'orange', gap: 40 }), num(i + 1, 162 + i * 144, 312, { c: 'orange', size: 36, gap: 140 })]) },
-      { say: 'Here it is. Three fifths.', ops: [dot(522, 400), fr(522, 458, 3, 5, { size: 44, wait: 300 }), loop(522, 466, 46, 62, { c: 'green' })], hold: 1000 },
+      { say: 'Here it is. Three fifths.', ops: [dot(522, 400), fr(522, 480, 3, 5, { size: 44, wait: 300 }), loop(522, 488, 48, 64, { c: 'green' })], hold: 1000 },
     ] },
     { title: 'Jumps, not marks', steps: [
       { say: 'Be careful with this next one.', ops: [w('Count the jumps!', 56, 96, { size: 62, b: 1, id: 't4' }), und('t4', { c: 'orange' })] },

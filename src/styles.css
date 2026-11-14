@@ -685,6 +685,7 @@ svg{display:block}
 .build.is-stack #ex-fig{display:block;width:100%;max-width:470px}
 .q-fig .nl{max-width:520px}
 .opt .nl{max-width:330px}
+.opts.wide .opt{min-height:96px}
 .opt-n{font:800 2rem/1 var(--font-display)}
 .fb .nl{max-width:320px;margin-top:10px}
 
@@ -810,7 +811,8 @@ svg{display:block}
   .subj-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .how-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .topic-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .lesson-name{flex:none;max-width:42%}
+  .lesson-name{flex:0 1 auto;min-width:0;max-width:38%}
+  .lesson-name strong{white-space:normal;line-height:1.15}
   .step:not(.is-current) .step-label{display:none}
   .step:not(.is-current){padding:0 7px}
   .player{grid-template-columns:1fr}
@@ -836,6 +838,8 @@ svg{display:block}
   .subject-head{grid-template-columns:auto minmax(0,1fr)}
   .overall{grid-column:1/-1}
   .say{max-width:none}
+  .to-teacher span{display:none}
+  .to-teacher{padding:0;width:44px}
   .stage-card{min-height:0}
   .lab-compact{grid-template-columns:1fr}
   .lab-line .lab-side{grid-template-columns:1fr}
@@ -857,7 +861,7 @@ svg{display:block}
   .reco{grid-template-columns:auto minmax(0,1fr)}
   .reco .btn{grid-column:1/-1}
   .lesson-bar-in{flex-wrap:wrap;row-gap:8px}
-  .lesson-name{flex:1}
+  .lesson-name{flex:1;max-width:none}
   .stepper{order:5;width:100%;margin:0}
   .stepper li{flex:1}
   .stepper li+li::before{display:none}
@@ -881,6 +885,7 @@ svg{display:block}
   .now-steps li span{display:none}
   .opts{gap:10px}
   .opt{min-height:76px}
+  .opts.wide{grid-template-columns:1fr}
   .q-fig{min-height:0;padding:14px}
   .q-fig .fig-pie,.q-fig .fig-grid,.q-fig .fig-strips{max-width:176px}
   .viz{min-height:0}
