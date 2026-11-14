@@ -5,14 +5,21 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TODAY = (new Date().getDay() + 6) % 7;
 const mins = m => m >= 60 ? `${Math.floor(m / 60)}h ${m % 60 ? (m % 60) + 'm' : ''}`.trim() : `${m}m`;
 function stars(id = kid().id) {
-  const l = S.prog[id], d = DEMO[id] || DEMO.k1;
-  return d.stars + l.pr.log.filter(r => r && r.first).length * 5 + (l.complete ? 30 : 0);
+  const d = DEMO[id] || DEMO.k1;
+  return d.stars + Object.values(S.prog[id] || {}).reduce((a, l) => a + l.pr.log.filter(r => r && r.first).length * 5 + (l.complete ? 30 : 0), 0);
 }
 function stageLabel(l) {
   if (l.complete) return 'Mastered';
   if (!l.started) return 'Not started';
-  return `Step ${l.stage + 1} of 5: ${STAGES[l.stage].label}`;
+  const i = Math.min(l.stage, 4);
+  return `Step ${i + 1} of 5: ${STAGES[i].label}`;
 }
+/* the lesson a child is on now, their place in it, and whether every built lesson is mastered */
+function nowLesson(kidId = kid().id, topic = 'fractions') {
+  const def = LESSON_DEFS[currentLessonId(kidId, topic)];
+  return { def, l: prog(def.id, kidId), all: builtIds(topic).every(id => prog(id, kidId).complete) };
+}
+const masteredIds = kidId => builtIds('fractions').filter(id => prog(id, kidId).complete);
 
 function appBar(mode = 'kid') {
   const k = kid(), d = demo();
@@ -154,7 +161,7 @@ function Home() {
     html,
     mount(root) {
       mountLab($('#hero-lab', root), { compact: true, n: 4, on: [0], shape: 'pie' });
-      Teacher.poster($('#home-board', root));
+      Teacher.poster($('#home-board', root), LESSON_DEFS['understanding-fractions'].teacher);
     },
   };
 }
@@ -210,6 +217,10 @@ function Auth(mode) {
 }
 
 /* ---------- parent or child ---------- */
+function whereIs(kidId) {
+  const { def, l, all } = nowLesson(kidId), done = masteredIds(kidId).length;
+  return all ? `${done} lessons mastered` : l.started ? `Lesson ${def.n}: ${stageLabel(l).toLowerCase()}` : done ? `Lesson ${def.n} is next` : 'Ready to start';
+}
 function Profiles() {
   const html = `<div class="view who">
     <header class="who-top"><div class="wrap">${logo('#home')}</div></header>
@@ -220,7 +231,7 @@ function Profiles() {
       <div class="who-grid">
         ${S.kids.map(k => `<button type="button" class="who-card c-${k.c}" data-action="pick-kid" data-id="${k.id}">
           <span class="who-face">${esc(k.name[0].toUpperCase())}</span>
-          <span class="who-txt"><strong>${esc(k.name)}</strong><span class="meta">Year ${k.year} · ${stageLabel(S.prog[k.id]) === 'Not started' ? 'Ready to start' : 'Fractions: ' + stageLabel(S.prog[k.id]).toLowerCase()}</span></span>
+          <span class="who-txt"><strong>${esc(k.name)}</strong><span class="meta">Year ${k.year} · ${whereIs(k.id)}</span></span>
         </button>`).join('')}
         <button type="button" class="who-card is-parent" data-action="open-parent">
           <span class="who-face">${icon('users', 44)}</span>
@@ -235,12 +246,12 @@ function Profiles() {
 
 /* ---------- student home: choose a subject ---------- */
 function Subjects() {
-  const k = kid(), l = L(), d = demo();
+  const k = kid(), d = demo(), { def, l, all } = nowLesson();
   const doneTopics = ALL_TOPICS.filter(t => topicDone(t) >= lessonCount(t.id)).length;
-  const cont = l.complete
-    ? { eb: 'Mastered', where: 'Mathematics · Fractions · Next up: Fractions on a Number Line', btn: 'Review lesson' }
-    : l.started ? { eb: 'Continue learning', where: `Mathematics · Fractions · ${stageLabel(l)}`, btn: 'Continue' }
-      : { eb: 'Start here', where: 'Mathematics · Fractions · about 15 minutes', btn: 'Start lesson' };
+  const where = `Mathematics · ${topicById(def.topic).name} · Lesson ${def.n}`;
+  const cont = all ? { eb: 'Every lesson so far is mastered', where: `${where} · open it again any time`, btn: 'Review lesson' }
+    : l.started ? { eb: 'Continue learning', where: `${where} · ${stageLabel(l)}`, btn: 'Continue' }
+      : { eb: def.n > 1 ? 'Your next lesson' : 'Start here', where: `${where} · about ${def.minutes} minutes`, btn: 'Start lesson' };
   const html = `<div class="view">${appBar('kid')}
   <main class="wrap page">
     <header><p class="eyebrow">${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][TODAY]} · Year ${k.year}</p>
@@ -249,16 +260,16 @@ function Subjects() {
     <section class="continue on-blue" aria-label="${cont.eb}">
       <svg class="continue-art" viewBox="0 0 200 200" aria-hidden="true">${[0, 1, 2, 3].map(i => `<path d="${sector(100, 100, 94, -Math.PI / 2 + i * TAU / 4, -Math.PI / 2 + (i + 1) * TAU / 4)}" style="fill:${i === 3 ? 'var(--on-accent)' : 'none'};stroke:var(--on-accent);stroke-width:3;stroke-linejoin:round"/>`).join('')}</svg>
       <div>
-        <p class="eyebrow">${cont.eb}</p><h2>Understanding Fractions</h2><p class="where">${cont.where}</p>
+        <p class="eyebrow">${cont.eb}</p><h2>${def.title}</h2><p class="where">${cont.where}</p>
         <div class="continue-steps" role="img" aria-label="${stageLabel(l)}">${STAGES.map((s, i) => `<i class="${l.complete || i < l.stage || (i === l.stage && l.started) ? 'on' : ''}"></i>`).join('')}</div>
       </div>
-      <a class="btn btn-white btn-lg" href="#lesson">${cont.btn} ${icon('right')}</a>
+      <a class="btn btn-white btn-lg" href="#lesson-${def.id}">${cont.btn} ${icon('right')}</a>
     </section>
     <section>
       <div class="h-row" style="margin-bottom:16px"><h2>Your subjects</h2></div>
       <div class="tiles-2">${SUBJECTS.map(s => s.live
         ? `<a class="subject c-${s.c}" href="#maths" style="text-decoration:none"><span class="subj-ico">${icon(s.ico, 32)}</span>
-            <span><h3>${s.name}</h3><span class="meta" style="display:block">${doneTopics} of ${ALL_TOPICS.length} topics complete</span><span class="meter" style="--v:${d.subj[s.id]};display:block"><i></i></span></span>
+            <span><h3>${s.name}</h3><span class="meta" style="display:block">${doneTopics} of ${ALL_TOPICS.length} topics complete</span><span class="meter" style="--v:${d.subj[s.id] + masteredIds(k.id).length};display:block"><i></i></span></span>
             <span class="go">${icon('right')}</span></a>`
         : `<div class="subject is-soon c-${s.c}"><span class="subj-ico">${icon(s.ico, 32)}</span>
             <span><h3>${s.name}</h3><span class="meta" style="display:block">${s.line}</span><span class="chip chip-line" style="margin-top:12px">Coming soon</span></span>
@@ -270,13 +281,13 @@ function Subjects() {
 
 /* ---------- mathematics home ---------- */
 function topicCard(t) {
-  const lv = LESSONS[t.id], done = topicDone(t), total = lessonCount(t.id);
+  const lv = LESSONS[t.id], done = topicDone(t), total = lessonCount(t.id), built = !!BUILT[t.id];
   let seen = 0;
   const bars = lv.map(list => { const a = clamp(done - seen, 0, list.length); seen += list.length; return a === list.length ? 'on' : a > 0 ? 'half' : ''; });
   const state = done >= total ? 'done' : done > 0 ? 'doing' : '';
-  const next = t.id === 'fractions' && !L().complete;
+  const next = built && done < total;
   const chip = state === 'done' ? `<span class="chip chip-good">${icon('check', 14)} Complete</span>`
-    : next ? `<span class="chip chip-blue">${L().started ? 'In progress' : 'Start here'}</span>`
+    : next ? `<span class="chip chip-blue">${done > 0 || nowLesson(undefined, t.id).l.started ? 'In progress' : 'Start here'}</span>`
       : state === 'doing' ? `<span class="chip chip-blue">In progress</span>` : '';
   return `<a class="topic ${state === 'done' ? 'is-done' : ''} ${next ? 'is-next' : ''}" href="#topic-${t.id}" style="text-decoration:none">
     <span class="topic-top"><span class="glyph">${t.i ? icon(t.i, 24) : t.g}</span>${chip}</span>
@@ -285,7 +296,7 @@ function topicCard(t) {
   </a>`;
 }
 function Maths() {
-  const l = L();
+  const { def, l, all } = nowLesson();
   const doneTopics = ALL_TOPICS.filter(t => topicDone(t) >= lessonCount(t.id)).length;
   const lessonsDone = ALL_TOPICS.reduce((a, t) => a + topicDone(t), 0), lessonsAll = ALL_TOPICS.reduce((a, t) => a + lessonCount(t.id), 0);
   const html = `<div class="view">${appBar('kid')}
@@ -297,10 +308,10 @@ function Maths() {
       <div class="overall"><b>${doneTopics} of ${ALL_TOPICS.length} topics complete</b><div class="meter" style="--v:${lessonsDone / lessonsAll * 100}"><i></i></div><span>${lessonsDone} of ${lessonsAll} lessons finished</span></div>
     </header>
     <section class="reco" aria-label="Recommended next lesson">
-      <span class="reco-fig">${fig({ t: 'pie', n: 4, on: [0, 1, 2] })}</span>
-      <div><p class="eyebrow" style="color:var(--blue-deep)">${l.complete ? 'Mastered' : l.started ? 'Continue learning' : 'Recommended next'}</p><h2>Understanding Fractions</h2>
-        <p>Fractions · Foundation · ${l.complete ? 'review any time' : l.started ? stageLabel(l) : 'about 15 minutes'}</p></div>
-      <a class="btn btn-primary btn-lg" href="#lesson">${l.complete ? 'Review' : l.started ? 'Continue' : 'Start lesson'} ${icon('right')}</a>
+      <span class="reco-fig">${def.thumb()}</span>
+      <div><p class="eyebrow" style="color:var(--blue-deep)">${all ? 'Mastered' : l.started ? 'Continue learning' : def.n > 1 ? 'Your next lesson' : 'Recommended next'}</p><h2>${def.title}</h2>
+        <p>${topicById(def.topic).name} · Lesson ${def.n} · ${all ? 'review any time' : l.started ? stageLabel(l) : `about ${def.minutes} minutes`}</p></div>
+      <a class="btn btn-primary btn-lg" href="#lesson-${def.id}">${all ? 'Review' : l.started ? 'Continue' : 'Start lesson'} ${icon('right')}</a>
     </section>
     <div class="levels-note"><span class="chip chip-blue">Foundation</span>${icon('right', 16)}<span class="chip chip-blue">Intermediate</span>${icon('right', 16)}<span class="chip chip-blue">Advanced</span><span>The three bars on each topic show how far you have climbed.</span></div>
     ${PATHWAYS.map(p => `<section class="pathway">
@@ -315,31 +326,42 @@ function Maths() {
 const TOPIC_BLURB = {
   fractions: ['Fractions describe parts of a whole. This topic starts with sharing fairly and ends with 11+ exam problems.',
     ['See a fraction as equal parts of a whole', 'Place, compare and simplify fractions', 'Add, subtract, multiply and divide fractions', 'Solve 11+ fraction problems']],
+  area: ['Perimeter is the distance round a shape; area is the space inside it. This topic starts with walking round a rectangle and ends with volume and 11+ problems.',
+    ['Find the perimeter of rectangles', 'Find area by counting squares and multiplying', 'Work with compound shapes and triangles', 'Find volume and surface area']],
 };
 function Topic(id) {
   const t = topicById(id);
   if (!t) return Maths();
-  const lv = LESSONS[id], total = lessonCount(id), done = topicDone(t), l = L(), frac1 = id === 'fractions';
+  const lv = LESSONS[id], total = lessonCount(id), done = topicDone(t), built = BUILT[id] || [], live = !!BUILT[id];
+  const curId = live ? currentLessonId(undefined, id) : null, allDone = live && built.every(b => prog(b).complete);
   const blurb = TOPIC_BLURB[id] || [`${total} short lessons that climb from Foundation to Advanced.`, lv.map(x => x[0])];
   let n = 0;
+  const lesson = name => {
+    const i = n++, bid = built[i];
+    if (bid) {                                   // a lesson that is built
+      const def = LESSON_DEFS[bid], l = prog(bid), state = lessonState(bid);
+      if (state === 'locked') {
+        return `<li class="path-item is-locked"><span class="node">${i + 1}</span>
+          <div class="path-card"><span><span class="h">${def.title}</span><span class="p">Opens when you master ${LESSON_DEFS[built[i - 1]].title}.</span></span>
+            <span class="path-actions"><span class="chip chip-line">${icon('lock', 14)} Locked</span><a class="link" href="#lesson-${bid}" title="Prototype shortcut: open this lesson without unlocking it">Preview</a></span></div></li>`;
+      }
+      const main = bid === curId && !allDone, isDone = state === 'done';
+      return `<li class="path-item ${main ? 'is-current' : isDone ? 'is-done' : 'is-open'}"><span class="node">${isDone ? icon('check', 22) : i + 1}</span>
+        <a class="path-card" href="#lesson-${bid}" style="text-decoration:none"><span><span class="h">${def.title}</span>
+          <span class="p">${isDone ? 'Mastered. Open it again any time.' : def.blurb}</span>
+          ${isDone ? '' : `<span class="mini-steps" role="img" aria-label="${stageLabel(l)}">${STAGES.map((s, j) => `<i class="${j < l.stage || (j === l.stage && l.started) ? 'on' : ''}"></i>`).join('')}</span>`}</span>
+          <span class="btn ${main ? 'btn-primary' : 'btn-soft btn-sm'}">${isDone ? 'Review' : l.started ? 'Continue' : 'Start'} ${icon('right', 18)}</span></a></li>`;
+    }
+    const sample = !live && i < done, upNext = live && i === built.length;
+    const msg = sample ? 'This finished lesson is sample progress in the prototype.' : upNext ? 'This lesson is the next one to be built.' : live ? 'Finish the lesson before this one to unlock it.' : 'Only the Fractions lessons are built in this prototype.';
+    return `<li class="path-item ${sample ? 'is-done' : 'is-locked'}"><span class="node">${sample ? icon('check', 22) : i + 1}</span>
+      <button type="button" class="path-card" data-toast="${esc(msg)}"><span><span class="h">${name}</span>
+        <span class="p">${sample ? 'Mastered' : upNext ? 'Up next' : 'About 15 minutes'}</span></span>
+        <span class="chip ${sample ? 'chip-good' : 'chip-line'}">${sample ? icon('check', 14) + ' Done' : icon('lock', 14) + (upNext ? ' Coming soon' : ' Locked')}</span></button></li>`;
+  };
   const items = lv.map((list, li) => `
     <li class="path-level"><span class="lvl-dot"><i></i></span><div><h2>${LEVELS[li]}</h2><span>${LEVEL_NOTE[li]}</span></div></li>
-    ${list.map(name => {
-      const i = n++, isDone = i < done, isCur = i === done;
-      if (frac1 && i === 0) {
-        return `<li class="path-item ${l.complete ? 'is-done' : 'is-current'}"><span class="node">${l.complete ? icon('check', 22) : 1}</span>
-          <a class="path-card" href="#lesson" style="text-decoration:none"><span><span class="h">${name}</span>
-            <span class="p">${l.complete ? 'Mastered. Open it again any time.' : 'What a fraction is, and what the top and bottom numbers mean.'}</span>
-            ${l.complete ? '' : `<span class="mini-steps" role="img" aria-label="${stageLabel(l)}">${STAGES.map((s, j) => `<i class="${j < l.stage || (j === l.stage && l.started) ? 'on' : ''}"></i>`).join('')}</span>`}</span>
-            <span class="btn ${l.complete ? 'btn-soft btn-sm' : 'btn-primary'}">${l.complete ? 'Review' : l.started ? 'Continue' : 'Start'} ${icon('right', 18)}</span></a></li>`;
-      }
-      const cls = isDone ? 'is-done' : 'is-locked';
-      const msg = isDone ? 'This finished lesson is sample progress in the prototype.' : (frac1 && isCur) ? 'This lesson opens in the next phase of the build.' : frac1 ? 'Finish the lesson before this one to unlock it.' : 'Only the Fractions lesson is built in this prototype.';
-      return `<li class="path-item ${cls}"><span class="node">${isDone ? icon('check', 22) : i + 1}</span>
-        <button type="button" class="path-card" data-toast="${esc(msg)}"><span><span class="h">${name}</span>
-          <span class="p">${isDone ? 'Mastered' : (frac1 && isCur) ? 'Up next' : 'About 15 minutes'}</span></span>
-          <span class="chip ${isDone ? 'chip-good' : 'chip-line'}">${isDone ? icon('check', 14) + ' Done' : icon('lock', 14) + ((frac1 && isCur) ? ' Coming soon' : ' Locked')}</span></button></li>`;
-    }).join('')}`).join('');
+    ${list.map(lesson).join('')}`).join('');
   const html = `<div class="view">${appBar('kid')}
   <main class="wrap page">
     <nav class="crumbs" aria-label="Breadcrumb"><a href="#subjects">Home</a>${icon('chev', 14)}<a href="#maths">Mathematics</a>${icon('chev', 14)}<span>${t.name}</span></nav>
@@ -366,37 +388,39 @@ function Topic(id) {
 let parentKid = null;
 function Parent() {
   const id = parentKid && S.kids.some(k => k.id === parentKid) ? parentKid : S.active;
-  const k = S.kids.find(x => x.id === id), d = DEMO[id] || DEMO.k1, l = S.prog[id];
+  const k = S.kids.find(x => x.id === id), d = DEMO[id] || DEMO.k1, { def, l, all } = nowLesson(id);
+  const done = masteredIds(id).map(x => LESSON_DEFS[x]), begun = builtIds('fractions').map(x => LESSON_DEFS[x]).filter(x => prog(x.id, id).started).reverse();
   const total = d.week.reduce((a, b) => a + b, 0), activeDays = d.week.filter(Boolean).length;
   const first = l.pr.log.filter(r => r && r.first).length, tried = l.pr.log.filter(Boolean).length;
-  const weak = [...new Set(l.pr.log.filter(r => r && !r.first).map(r => SKILL[r.skill]))];
-  const now = l.complete ? `Mastered${l.ma.score ? `, with ${l.ma.score} out of 5 in the mastery check` : ''}.`
+  /* the most recent lesson with a first-try miss tells the parent what to help with */
+  const stuck = begun.map(x => ({ x, miss: prog(x.id, id).pr.log.filter(r => r && !r.first).map(r => x.skills[r.skill]) })).find(e => e.miss.length);
+  const now = all ? `Mastered${l.ma.score ? `, with ${l.ma.score} out of ${def.mastery.length} in the mastery check` : ''}. The next lesson is being built.`
     : l.started ? `${esc(k.name)} is on ${stageLabel(l).toLowerCase()}.` : `Not started yet. This is ${esc(k.name)}'s next lesson.`;
-  const subj = SUBJECTS.map(s => ({ ...s, v: d.subj[s.id] + (s.id === 'maths' && l.complete ? 2 : 0) }));
+  const subj = SUBJECTS.map(s => ({ ...s, v: d.subj[s.id] + (s.id === 'maths' ? done.length : 0) }));
   const html = `<div class="view">${appBar('parent')}
   <main class="wrap page">
     <header class="parent-head">
       <div><p class="eyebrow">Parent view · sample data</p><h1 class="page-title" style="margin-top:10px">${esc(k.name)}'s week</h1>
-        <p class="page-sub">Year ${k.year}. Figures on this page are examples, apart from the Fractions lesson, which shows what has really been done in this prototype.</p></div>
+        <p class="page-sub">Year ${k.year}. Figures on this page are examples, apart from the Fractions lessons, which show what has really been done in this prototype.</p></div>
       <div class="kid-switch" role="tablist" aria-label="Choose a child">${S.kids.map(x => `<button type="button" role="tab" aria-selected="${x.id === id}" class="c-${x.c}" data-action="parent-kid" data-id="${x.id}"><span class="avatar">${esc(x.name[0].toUpperCase())}</span>${esc(x.name)}</button>`).join('')}</div>
     </header>
     <section class="stat-tiles" aria-label="This week">
       <div class="stat"><span class="lbl">${icon('clock', 16)} Time this week</span><span class="val">${mins(total)}</span><span class="delta">across ${activeDays} days</span></div>
-      <div class="stat"><span class="lbl">${icon('check', 16)} Lessons finished</span><span class="val">${d.lessons + (l.complete ? 1 : 0)}</span><span class="delta">this week</span></div>
-      <div class="stat"><span class="lbl">${icon('medal', 16)} Skills mastered</span><span class="val">${d.mastered + (l.complete ? 1 : 0)}</span><span class="delta">${l.complete ? '<b>+1</b> Understanding Fractions' : 'this term'}</span></div>
+      <div class="stat"><span class="lbl">${icon('check', 16)} Lessons finished</span><span class="val">${d.lessons + done.length}</span><span class="delta">this week</span></div>
+      <div class="stat"><span class="lbl">${icon('medal', 16)} Skills mastered</span><span class="val">${d.mastered + done.length}</span><span class="delta">${done.length ? `<b>+${done.length}</b> ${done.length === 1 ? done[0].title : 'Fractions lessons'}` : 'this term'}</span></div>
       <div class="stat"><span class="lbl">${icon('flame', 16)} Learning streak</span><span class="val">${d.streak} days</span><span class="delta">in a row</span></div>
     </section>
     <div class="p-grid">
       <div class="p-col">
-        <section class="p-card"><div><h2>Learning now</h2><p class="p-sub">Mathematics · Fractions</p></div>
-          <div><b style="font:800 1.375rem var(--font-display)">Understanding Fractions</b><p style="color:var(--ink-2);margin-top:4px">${now}</p></div>
+        <section class="p-card"><div><h2>Learning now</h2><p class="p-sub">Mathematics · ${topicById(def.topic).name} · Lesson ${def.n}</p></div>
+          <div><b style="font:800 1.375rem var(--font-display)">${def.title}</b><p style="color:var(--ink-2);margin-top:4px">${now}</p></div>
           <ol class="now-steps">${STAGES.map((s, i) => `<li class="${l.complete || i < l.stage ? 'on' : (i === l.stage && l.started) ? 'cur' : ''}"><i></i><span>${s.label}</span></li>`).join('')}</ol>
           ${tried ? `<div class="insight good"><span class="i-ico">${icon('target', 18)}</span><div><b>Practice so far</b><span>${first} of ${tried} questions right at the first try.</span></div></div>` : ''}
         </section>
         <section class="p-card"><div><h2>Minutes learned each day</h2><p class="p-sub">This week, Monday to Sunday</p></div>${weekChart(d.week)}</section>
         <section class="p-card"><div><h2>Recent activity</h2></div>
           <ul class="feed">
-            ${l.started ? `<li><span class="f-ico">${icon(l.complete ? 'medal' : 'play', 18)}</span><div><b>Understanding Fractions</b><span>${l.complete ? 'Mastered' : stageLabel(l)}</span></div><time>Today</time></li>` : ''}
+            ${begun.map(x => { const p = prog(x.id, id); return `<li><span class="f-ico">${icon(p.complete ? 'medal' : 'play', 18)}</span><div><b>${x.title}</b><span>${p.complete ? `Mastered, ${p.ma.score} out of ${x.mastery.length}` : stageLabel(p)}</span></div><time>Today</time></li>`; }).join('')}
             <li><span class="f-ico">${icon('medal', 18)}</span><div><b>Times Tables: 3, 4 &amp; 8</b><span>Mastery check passed, 5 out of 5</span></div><time>Thursday</time></li>
             <li><span class="f-ico">${icon('target', 18)}</span><div><b>Sharing &amp; Grouping</b><span>Practice, 7 of 8 right first time</span></div><time>Tuesday</time></li>
             <li><span class="f-ico">${icon('play', 18)}</span><div><b>Column Subtraction</b><span>Watched the teacher explanation twice</span></div><time>Monday</time></li>
@@ -406,12 +430,12 @@ function Parent() {
         <section class="p-card"><div><h2>Progress by subject</h2><p class="p-sub">Share of each 11+ course completed</p></div>
           <div class="s-rows">${subj.map(s => `<div class="s-row c-${s.c}"><span class="dot"></span><b>${s.name}</b><span class="pct">${s.v}%</span><div class="meter" style="--v:${s.v}" role="img" aria-label="${s.name}: ${s.v} percent"><i></i></div></div>`).join('')}</div></section>
         <section class="p-card"><div><h2>Doing well</h2></div>
-          ${l.complete ? `<div class="insight good"><span class="i-ico">${icon('medal', 18)}</span><div><b>Understanding fractions</b><span>Passed the mastery check with ${l.ma.score} out of 5, working alone.</span></div></div>` : ''}
+          ${done.slice().reverse().map(x => `<div class="insight good"><span class="i-ico">${icon('medal', 18)}</span><div><b>${x.title}</b><span>Passed the mastery check with ${prog(x.id, id).ma.score} out of ${x.mastery.length}, working alone.</span></div></div>`).join('')}
           <div class="insight good"><span class="i-ico">${icon('check', 18)}</span><div><b>Place value</b><span>Reads, orders and rounds numbers to 10,000 with confidence.</span></div></div>
-          <div class="insight good"><span class="i-ico">${icon('check', 18)}</span><div><b>Addition and subtraction</b><span>Column methods are secure, including exchanging.</span></div></div></section>
+          ${done.length > 1 ? '' : `<div class="insight good"><span class="i-ico">${icon('check', 18)}</span><div><b>Addition and subtraction</b><span>Column methods are secure, including exchanging.</span></div></div>`}</section>
         <section class="p-card"><div><h2>Needs a little help</h2></div>
-          ${weak.length ? `<div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Fractions: ${weak[0]}</b><span>Missed at the first try in practice. Cut toast or fruit into equal pieces and talk about each part.</span></div></div>`
-            : !l.complete ? `<div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Fractions are new this week</b><span>Cut toast or fruit into equal pieces and ask what fraction each piece is.</span></div></div>` : ''}
+          ${stuck ? `<div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Fractions: ${stuck.miss[0]}</b><span>Missed at the first try in ${stuck.x.title}. ${stuck.x.homeTip}</span></div></div>`
+            : !done.length ? `<div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Fractions are new this week</b><span>Cut toast or fruit into equal pieces and ask what fraction each piece is.</span></div></div>` : ''}
           <div class="insight help"><span class="i-ico">${icon('bulb', 18)}</span><div><b>Times tables: 7s and 8s</b><span>Slower than the other tables. Try five quick questions at breakfast.</span></div></div></section>
         <button type="button" class="btn btn-primary btn-lg" data-action="pick-kid" data-id="${id}">Open ${esc(k.name)}'s learning ${icon('right')}</button>
       </div>

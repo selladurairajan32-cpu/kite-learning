@@ -55,6 +55,9 @@ const ICONS = {
   count: '<path d="M9 4L7 20M17 4l-2 16M4.5 9h16M3.5 15h16"/>',
   skip: '<path d="M5 6l7 6-7 6zM13 6l7 6-7 6z"/>',
   flip: '<path d="M12 3v18M8 7l-4 5 4 5zM16 7l4 5-4 5z"/>',
+  hop: '<path d="M3.5 17c2-7.5 5.5-11 8.5-11s6.5 3.5 8.5 11"/><path d="M16.5 13.5l4 3.5 1.5-5"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  ruler: '<rect x="3" y="8" width="18" height="8" rx="1.5"/><path d="M7 8v3M11 8v4M15 8v3"/>',
   heart: '<path d="M12 20s-7-4.4-7-9.6A3.9 3.9 0 0112 8a3.9 3.9 0 017 2.4C19 15.6 12 20 12 20z"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>',
 };
@@ -189,24 +192,41 @@ async function countParts(svg, idx, { top = false, instant = false, alive = () =
 function clearCounts(svg) { $$('.cnt', svg).forEach(t => t.classList.remove('show')); }
 
 /* ---------- saved state ---------- */
-const KEY = 'kite-learning-proto-v1';
+const KEY = 'kite-learning-proto-v2', OLD_KEY = 'kite-learning-proto-v1';
 const freshLesson = () => ({
-  started: false, stage: 0, slide: 0, beat: 0, fair: null, missions: 0, lab: { shape: 'pie', n: 4, on: [] },
+  started: false, stage: 0, slide: 0, beat: 0, flags: {}, missions: 0, wins: [], tool: null,
   ex: 0, exStep: 0, exDone: [], pr: { i: 0, log: [], fastAsked: false }, ma: { i: 0, ans: [], done: false, score: 0 }, complete: false, tv: 0,
 });
 const S = {
   auth: false, parent: 'Alex',
   kids: [{ id: 'k1', name: 'Maya', year: 4, c: 'blue' }, { id: 'k2', name: 'Leo', year: 6, c: 'teal' }],
-  active: 'k1', prog: { k1: freshLesson(), k2: freshLesson() }, voice: true, cc: true, speed: 1,
+  active: 'k1', prog: {}, voice: true, cc: true, speed: 1,   // prog[childId][lessonId] = that child's place in that lesson
 };
 try {
   const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
   if (saved && saved.kids && saved.prog) Object.assign(S, saved);
-  S.kids.forEach(k => { S.prog[k.id] = Object.assign(freshLesson(), S.prog[k.id] || {}); });
+  else {
+    /* carry over progress saved by the first version of the prototype, which had one lesson */
+    const old = JSON.parse(localStorage.getItem(OLD_KEY) || 'null');
+    if (old && old.kids && old.prog) {
+      const { prog, ...rest } = old;
+      Object.assign(S, rest);
+      S.prog = {};
+      for (const k of S.kids) {
+        const p = prog[k.id];
+        if (p && typeof p.stage === 'number') S.prog[k.id] = { 'understanding-fractions': { ...p, flags: { fair: p.fair == null ? null : p.fair }, tool: p.lab || null } };
+      }
+    }
+  }
+  for (const k of Object.keys(S.prog)) for (const id of Object.keys(S.prog[k])) S.prog[k][id] = Object.assign(freshLesson(), S.prog[k][id]);
 } catch (e) { /* storage unavailable: the prototype still works for this visit */ }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
 const kid = () => S.kids.find(k => k.id === S.active) || S.kids[0];
-const L = () => S.prog[kid().id];
+/* a child's place in one lesson (created the first time it is asked for) */
+function prog(lessonId, kidId = kid().id) {
+  const mine = S.prog[kidId] || (S.prog[kidId] = {});
+  return mine[lessonId] || (mine[lessonId] = freshLesson());
+}
 
 /* sample figures for the two demo children (clearly labelled as sample data where shown) */
 const DEMO = {
@@ -326,7 +346,26 @@ const LEVEL_NOTE = ['Start here: the big ideas, shown with pictures.', 'Build sk
 const ALL_TOPICS = PATHWAYS.flatMap(p => p.topics);
 const topicById = id => ALL_TOPICS.find(t => t.id === id);
 const lessonCount = id => LESSONS[id].reduce((a, l) => a + l.length, 0);
-function topicDone(t) { return t.id === 'fractions' ? (L().complete ? 1 : 0) : (t.done || 0); }
+
+/* ---------- built lessons: each lesson file registers itself here ---------- */
+const LESSON_DEFS = {};
+const BUILT = {};                                  // topic id -> lesson ids, in teaching order
+function addLesson(def) { LESSON_DEFS[def.id] = def; (BUILT[def.topic] = BUILT[def.topic] || [])[def.n - 1] = def.id; }
+const builtIds = topic => (BUILT[topic] || []).filter(Boolean);
+function lessonState(id, kidId) {                  // 'done' | 'open' | 'locked'
+  const def = LESSON_DEFS[id], p = prog(id, kidId);
+  if (p.complete) return 'done';
+  if (def.n === 1 || p.started) return 'open';
+  const prev = BUILT[def.topic][def.n - 2];
+  return prev && prog(prev, kidId).complete ? 'open' : 'locked';
+}
+/* the lesson a child should do next: the first one that is open and not yet mastered */
+function currentLessonId(kidId, topic = 'fractions') {
+  const ids = builtIds(topic);
+  return ids.find(id => lessonState(id, kidId) === 'open') || ids.find(id => !prog(id, kidId).complete) || ids[ids.length - 1];
+}
+const nextLessonId = id => { const d = LESSON_DEFS[id]; return (BUILT[d.topic] || [])[d.n] || null; };
+function topicDone(t, kidId) { return BUILT[t.id] ? builtIds(t.id).filter(id => prog(id, kidId).complete).length : (t.done || 0); }
 const STAGES = [
   { id: 'learn', label: 'Learn', ico: 'eye' }, { id: 'explore', label: 'Explore', ico: 'tap' }, { id: 'examples', label: 'Examples', ico: 'pencil' },
   { id: 'practise', label: 'Practise', ico: 'target' }, { id: 'mastery', label: 'Mastery check', ico: 'medal' },

@@ -21,6 +21,8 @@
   --sun:#FFD43B;  --sun-ink:#5C4500;  --sun-soft:#FFF5CC;
   /* teacher's paper */
   --b-bg:#FFFEF9; --b-grid:#DFE8F6; --b-ink:#17223F; --b-blue:#2756F5; --b-orange:#F0641E; --b-green:#0A8F60; --b-rose:#D12E58; --b-grey:#7C88A6; --b-hl:#FFE066;
+  /* Pip the frog and the pond */
+  --frog:#3DB56F; --frog-2:#1F8750; --pad:#A6DFB5; --pad-2:#6FC489; --pond:#E3F0FF; --petal:#F4A4C0;
   /* pizza */
   --cheese:#FFD27A; --crust:#E39A3B; --crust-2:#C97F23; --pep:#E4572E; --pep-2:#B93A1B;
   /* type */
@@ -328,6 +330,9 @@ svg{display:block}
 .path-card:hover{border-color:var(--line-2)}
 .path-item.is-locked .path-card{background:transparent;border-style:dashed;border-color:var(--line-2)}
 .path-item.is-locked .h{color:var(--ink-2)}
+.path-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.path-actions .link{font-size:.875rem}
+.path-item.is-open .node{border-color:var(--blue);color:var(--blue-deep)}
 .path-item.is-current .node{background:var(--blue);border-color:var(--blue);color:var(--on-accent);box-shadow:0 0 0 6px var(--blue-soft)}
 .path-item.is-current .path-card{border:1.5px solid var(--blue);box-shadow:var(--shadow-1);padding:20px}
 .path-item.is-current .h{font-size:1.375rem}
@@ -381,6 +386,8 @@ svg{display:block}
 .note{font-size:1rem;color:var(--ink-2);max-width:40ch}
 .bigfrac{display:inline-flex;align-items:center;gap:18px;align-self:flex-start;padding:14px 24px 14px 20px;border-radius:22px;background:var(--blue-wash);font:800 1.375rem/1.2 var(--font-display);animation:sayIn .4s ease both}
 .bigfrac .frac{font-size:3.25rem;margin:0}
+.bigfrac.fracrow{gap:22px}
+.bigfrac.fracrow .frac{font-size:2.5rem}
 .stage-foot{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .dots{display:flex;gap:6px;align-items:center}
 .dots i{width:8px;height:8px;border-radius:99px;background:var(--line-2);transition:width .25s,background-color .25s}
@@ -617,6 +624,72 @@ svg{display:block}
 .can-do .ico{color:var(--good)}
 
 /* =====================================================================
+   Number lines (lesson 2 onward)
+   Same colour code as the fraction pictures: jumps made from 0 are
+   orange like the top number, all the equal jumps are blue like the
+   bottom number.
+   ===================================================================== */
+.nl{width:100%;height:auto;overflow:visible}
+.scene.nl{overflow:hidden}
+.nl .ax{stroke:var(--ink);stroke-width:4;stroke-linecap:round}
+.nl .tk{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+.nl .tk.end{stroke-width:4}
+.nl .tn{font:800 20px var(--font-display);fill:var(--ink);text-anchor:middle}
+.nl .tn.word{font:600 14px var(--font-body);fill:var(--ink-2)}
+.scene.nl .tn{font-size:25px}
+.nl .hop{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:.06 .075;opacity:.6;transition:opacity .25s}
+.nl .hop.on{stroke:var(--orange);stroke-width:3.5;opacity:1;stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset .5s ease-out}
+.nl .hop.on.wait{stroke-dashoffset:1;opacity:0;transition:none}
+.nl .hop.off{opacity:0}
+.nl .jc{font-family:var(--font-display);font-weight:800;fill:var(--blue);text-anchor:middle;dominant-baseline:central;opacity:0;transition:opacity .2s}
+.nl .jc.show{opacity:1}
+.nl .jc.top{fill:var(--orange-ink)}
+.nl .mn{font:800 19px var(--font-display);fill:var(--oops);text-anchor:middle;opacity:0;transition:opacity .3s}
+.nl .mn.show{opacity:1}
+.nl .mn.dim{opacity:.2}
+.nl .tl{opacity:0;transition:opacity .35s}
+.nl .tl.show{opacity:1}
+.nl .tl-pill{fill:var(--surface);stroke:var(--line-2);stroke-width:1.5}
+.nl .mk{fill:var(--orange);stroke:var(--ink);stroke-width:2.5}
+.nl .mk.land{transform-box:fill-box;transform-origin:center;animation:mkLand .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes mkLand{from{transform:scale(.3)}to{transform:none}}
+.nl .pin{fill:var(--ink)}
+.nl .hit{fill:transparent;cursor:pointer}
+.nl .hit:hover{fill:rgba(39,86,245,.1)}
+.nl .hit[aria-pressed="true"]{fill:rgba(39,86,245,.12)}
+.nl .hit:focus-visible{outline:3px solid var(--blue);outline-offset:1px}
+.nl.fresh .tk:not(.end){transform-box:fill-box;transform-origin:center;animation:tkIn .45s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes tkIn{from{opacity:0;transform:scaleY(.1)}to{opacity:1;transform:none}}
+.frog{pointer-events:none}
+.pond{fill:var(--pond)}
+.pad{fill:var(--pad);stroke:var(--pad-2);stroke-width:1.5}
+.petal{fill:var(--petal)}
+.pollen{fill:var(--sun)}
+.gap{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.gap-q{font:800 34px var(--font-display);fill:var(--amber-ink);text-anchor:middle}
+.zoom-note rect,.verdict-t rect{fill:var(--ink)}
+.zoom-note text,.verdict-t text{font:700 17px var(--font-body);fill:var(--on-accent);text-anchor:middle}
+.bubble path{fill:var(--surface);stroke:var(--line-2);stroke-width:2;stroke-linejoin:round}
+.bubble text{font:600 15px var(--font-body);fill:var(--ink);text-anchor:middle}
+.barg{transition:transform .8s cubic-bezier(.3,1.15,.5,1)}
+.is-laid .barg{transform:translateY(152px)}
+.guide line{stroke:var(--ink-3);stroke-width:2;stroke-dasharray:4 7;stroke-linecap:round}
+.lab-line{grid-template-columns:minmax(0,1fr)}
+.lab-line .lab-shape{min-height:0;padding:clamp(12px,2vw,22px)}
+.lab-line .lab-svg{touch-action:none;cursor:grab;border-radius:12px}
+.lab-line .lab-svg:focus-visible{outline:3px solid var(--blue);outline-offset:6px}
+.lab-line .lab-side{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px 26px;align-items:center}
+.lab-line .lab-ctrl{justify-content:flex-end}
+.lab-line .q-help{grid-column:1/-1}
+.build.is-stack{flex-direction:column;gap:20px}
+.build.is-stack #ex-fig{display:block;width:100%;max-width:470px}
+.q-fig .nl{max-width:520px}
+.opt .nl{max-width:330px}
+.opts.wide .opt{min-height:96px}
+.opt-n{font:800 2rem/1 var(--font-display)}
+.fb .nl{max-width:320px;margin-top:10px}
+
+/* =====================================================================
    Watch teacher explain
    ===================================================================== */
 .teacher{margin-top:clamp(28px,5vw,56px);scroll-margin-top:calc(84px + env(safe-area-inset-top,0px))}
@@ -738,7 +811,8 @@ svg{display:block}
   .subj-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .how-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .topic-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .lesson-name{flex:none;max-width:42%}
+  .lesson-name{flex:0 1 auto;min-width:0;max-width:38%}
+  .lesson-name strong{white-space:normal;line-height:1.15}
   .step:not(.is-current) .step-label{display:none}
   .step:not(.is-current){padding:0 7px}
   .player{grid-template-columns:1fr}
@@ -764,8 +838,12 @@ svg{display:block}
   .subject-head{grid-template-columns:auto minmax(0,1fr)}
   .overall{grid-column:1/-1}
   .say{max-width:none}
+  .to-teacher span{display:none}
+  .to-teacher{padding:0;width:44px}
   .stage-card{min-height:0}
   .lab-compact{grid-template-columns:1fr}
+  .lab-line .lab-side{grid-template-columns:1fr}
+  .lab-line .lab-ctrl{justify-content:flex-start}
 }
 @media (max-width:720px){
   body{font-size:16px}
@@ -783,7 +861,7 @@ svg{display:block}
   .reco{grid-template-columns:auto minmax(0,1fr)}
   .reco .btn{grid-column:1/-1}
   .lesson-bar-in{flex-wrap:wrap;row-gap:8px}
-  .lesson-name{flex:1}
+  .lesson-name{flex:1;max-width:none}
   .stepper{order:5;width:100%;margin:0}
   .stepper li{flex:1}
   .stepper li+li::before{display:none}
@@ -807,6 +885,7 @@ svg{display:block}
   .now-steps li span{display:none}
   .opts{gap:10px}
   .opt{min-height:76px}
+  .opts.wide{grid-template-columns:1fr}
   .q-fig{min-height:0;padding:14px}
   .q-fig .fig-pie,.q-fig .fig-grid,.q-fig .fig-strips{max-width:176px}
   .viz{min-height:0}
@@ -833,4 +912,93 @@ svg{display:block}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* =====================================================================
+   Perimeter (Perimeter, Area & Volume, lesson 1 onward)
+   Long sides (length) are orange, short sides (width) are blue, the same
+   pairing as the top and bottom numbers of a fraction.
+   ===================================================================== */
+.pm{width:100%;height:auto;overflow:visible}
+.pm text{font-family:var(--font-body)}
+.pm-grid{fill:none;stroke:var(--b-grid);stroke-width:1.5}
+.pm-grid.soft{stroke-width:1}
+.pm-fill{fill:rgba(39,86,245,.07)}
+.pm-fill.solid{fill:var(--surface)}
+.pm-out{fill:none;stroke:var(--ink);stroke-width:3.5;stroke-linejoin:round}
+.pm-edge{stroke:var(--ink);stroke-width:4;stroke-linecap:round;transition:stroke .2s,stroke-width .2s}
+.pm-edge.on{stroke:var(--orange);stroke-width:7}
+.pm-en{font-family:var(--font-display);font-weight:800;fill:var(--orange-ink);text-anchor:middle;dominant-baseline:central;opacity:0;transition:opacity .2s}
+.pm-en.show{opacity:1}
+.pm-sq{font:800 22px var(--font-display);fill:var(--oops);text-anchor:middle;dominant-baseline:central;transition:opacity .3s}
+.pm-sq.dim{opacity:.18}
+.pm-side{stroke-width:5;stroke-linecap:round;transition:stroke-width .25s}
+.pm-side.len{stroke:var(--orange)} .pm-side.wid{stroke:var(--blue)}
+.pm-side.on{stroke-width:8}
+.pm-side.glow{stroke-width:9;animation:pmGlow .9s ease-in-out 2}
+@keyframes pmGlow{50%{stroke-width:13}}
+.pm-lab{font:800 22px var(--font-display)}
+.pm-lab.len{fill:var(--orange-ink)} .pm-lab.wid{fill:var(--blue)}
+.pm-sum text{font:800 26px var(--font-display);fill:var(--ink);text-anchor:middle}
+.pm-sum .len{fill:var(--orange-ink)} .pm-sum .wid{fill:var(--blue)}
+.pm-soil{fill:#B98552;transition:opacity .5s}
+.pm-inside{transition:opacity .5s}
+.sp-stem{stroke:var(--frog-2);stroke-width:2.5;stroke-linecap:round}
+.sp-leaf{fill:var(--frog)}
+.pm-fence{fill:none;stroke:var(--crust-2);stroke-width:6;stroke-dasharray:12 6;transition:stroke-width .4s}
+.pm-trail{fill:none;stroke:var(--orange);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.is-edge .pm-soil,.is-edge .pm-inside{opacity:.28}
+.is-edge .pm-trail{stroke-width:10}
+.pm-pill rect,.pm-total rect,.pm-tag-in rect{fill:var(--ink)}
+.pm-pill text,.pm-total text,.pm-tag-in text{font:700 18px var(--font-body);fill:var(--on-accent);text-anchor:middle}
+.pm-tag-in rect{fill:var(--surface);stroke:var(--line-2);stroke-width:2}
+.pm-tag-in text{fill:var(--ink-3);text-decoration:line-through}
+.pm-key-l{stroke:var(--ink);stroke-width:4;stroke-linecap:round}
+.pm-key text{font:700 15px var(--font-body);fill:var(--ink-2);text-anchor:middle}
+.pm-dim{font:700 15px var(--font-body);fill:var(--ink-2);text-anchor:middle}
+.pm-eq{font:800 16px var(--font-display);fill:var(--ink-3);text-anchor:middle}
+.pm-badge rect{fill:var(--surface);stroke:var(--line-2);stroke-width:2;transition:fill .3s,stroke .3s}
+.pm-badge text{font:800 17px var(--font-display);fill:var(--ink);text-anchor:middle;transition:fill .3s}
+.pm-badge.on rect{fill:var(--good);stroke:var(--good)} .pm-badge.on text{fill:var(--on-accent)}
+.bug{pointer-events:none}
+.bug-body{fill:#E4572E;stroke:var(--ink);stroke-width:2}
+.bug-head{fill:var(--ink)}
+.bug-line{stroke:var(--ink);stroke-width:1.8}
+.bug-spot{fill:var(--ink)}
+.bug-eye{fill:var(--surface)}
+.pm-big .pm-v{font:800 2.75rem/1 var(--font-display);color:var(--ink)}
+.ex-pm{max-width:470px}
+.q-fig .q-pm{max-width:440px}
+.opt .opt-pm{max-width:220px}
+/* the answer in a worked example, when it is a measurement */
+.ans-box{display:inline-flex;align-items:baseline;justify-content:center;min-width:2.4em;padding:.15em .45em;border-radius:20px;background:var(--surface);font:800 clamp(2.5rem,5vw,3.5rem)/1 var(--font-display);color:var(--ink)}
+.ans-box .fn{transition:opacity .3s,transform .4s cubic-bezier(.3,1.6,.5,1)}
+.ans-box .fn.hide{opacity:0;transform:scale(.4)}
+.ans-box small{font-size:.5em;margin-left:.15em;color:var(--ink-3)}
+/* number pad questions */
+.numq{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.num-show{display:inline-flex;align-items:baseline;gap:10px}
+.num-box{min-width:120px;height:76px;padding:0 16px;border-radius:18px;border:2.5px solid var(--blue);background:var(--blue-wash);box-shadow:0 0 0 4px var(--blue-soft);display:inline-grid;place-items:center;font:800 2.5rem/1 var(--font-display);color:var(--ink)}
+.locked .num-box{border-color:var(--line-2);box-shadow:none;background:var(--surface)}
+.num-unit{font:800 1.75rem/1 var(--font-display);color:var(--ink-3)}
+.pad.pad-num{grid-template-columns:repeat(3,56px)}
+.pad.pad-num button{display:grid;place-items:center}
+/* explore: the fence builder */
+.lab-pm .lab-shape{padding:clamp(10px,2vw,20px)}
+.pm-lab-svg{max-width:420px;touch-action:none}
+.pm-handle{fill:var(--orange);stroke:var(--ink);stroke-width:3;cursor:grab}
+.pm-handle:active{cursor:grabbing}
+.pm-tick{fill:var(--surface);stroke:var(--orange);stroke-width:2}
+.pm-tn{font:800 11px var(--font-display);fill:var(--orange-ink);text-anchor:middle}
+.pm-read .pm-v{font:800 clamp(2.75rem,5.5vw,3.75rem)/1 var(--font-display);white-space:nowrap}
+.pm-read .pm-v small{font-size:.45em;color:var(--ink-3)}
+.pm-ctrls{display:flex;flex-wrap:wrap;gap:12px 18px}
+.pm-ctl{display:flex;flex-direction:column;gap:6px}
+.pm-ctl-l{font-weight:700;font-size:.875rem}
+.pm-ctl-l.len{color:var(--orange-ink)} .pm-ctl-l.wid{color:var(--blue)}
+.lab-pm .stepper-ctl output{min-width:84px}
+.lab-pm .shape-toggle button{display:inline-flex;align-items:center;gap:8px}
+@media (max-width:760px){
+  .lab-pm{grid-template-columns:minmax(0,1fr)}
+  .pad.pad-num{grid-template-columns:repeat(3,52px)}
 }
