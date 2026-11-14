@@ -264,6 +264,29 @@ const Voice = {
       return true;
     } catch (e) { return false; }
   },
+  /* sentences queued back to back, so the teacher talks without gaps; onpart(i) fires as sentence i starts */
+  sayAll(texts, { rate = 0.95, onpart, onend } = {}) {
+    if (!this.ok || !texts.length) return false;
+    try {
+      const busy = speechSynthesis.speaking || speechSynthesis.pending;
+      if (busy) speechSynthesis.cancel();
+      let ended = false;
+      const fin = () => { if (!ended) { ended = true; onend && onend(); } };
+      const us = texts.map((text, i) => {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-GB'; if (this.voice) u.voice = this.voice;
+        u.rate = rate; u.pitch = 1.05;
+        u.onstart = () => onpart && onpart(i);
+        u.onerror = fin;
+        return u;
+      });
+      us[us.length - 1].onend = fin;
+      this.cur = us;      // keep a reference: some browsers drop events for utterances that are garbage-collected
+      const start = () => { try { us.forEach(u => speechSynthesis.speak(u)); } catch (e) { fin(); } };
+      if (busy) setTimeout(start, 60); else start();
+      return true;
+    } catch (e) { return false; }
+  },
   stop() { if (this.ok) { try { speechSynthesis.cancel(); } catch (e) { } } },
 };
 if (Voice.ok) { Voice.pick(); try { speechSynthesis.addEventListener('voiceschanged', () => Voice.pick()); } catch (e) { } }

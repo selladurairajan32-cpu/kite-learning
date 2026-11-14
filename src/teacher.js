@@ -3,6 +3,8 @@
    A whiteboard-style explanation drawn stroke by stroke on squared paper.
    The whole lesson is one timeline: the board is a pure function of time,
    so play, pause, replay, seek, speed and captions all come from one clock.
+   With the voice on, the voice drives that clock: the board waits for each
+   sentence to start, follows it as it is spoken, and never runs ahead of it.
    ===================================================================== */
 const Teacher = (() => {
   const W = 900, H = 600, NS = 'http://www.w3.org/2000/svg', REST = [W - 120, H - 90];
@@ -182,8 +184,11 @@ const Teacher = (() => {
       sc.steps.forEach(st => {
         const sayMs = speakMs(st.say), step = { say: st.say, t0: t, scene: si, sayMs };
         const bits = st.say.match(/[^.!?]+[.!?]+/g) || [st.say], words = bits.map(b => b.trim().split(/\s+/).length), all = words.reduce((a, b) => a + b, 0);
-        step.parts = bits.map((b, i) => ({ text: b.trim(), share: words[i] / all }));
+        let cum = 0;
+        step.parts = bits.map((b, i) => { const p = { text: b.trim(), share: words[i] / all, cum }; cum += p.share; return p; });
+        if (step.parts.map(p => p.text).join(' ').length < st.say.trim().length * 0.9) step.parts = [{ text: st.say.trim(), share: 1, cum: 0 }];
         let a = t + 260;
+        const mine = [];
         st.ops.flat().forEach(op => {
           const o = makeOp(op, g, ids);
           if (op.id) ids[op.id] = o;
@@ -192,8 +197,15 @@ const Teacher = (() => {
           o.lead = o.think ? 0 : 250;
           o.t0 = a; o.d0 = a + o.lead; o.t1 = o.d0 + o.dur; o.p = -1;
           a = o.t1 + (op.gap === undefined ? 150 : op.gap);
-          scene.ops.push(o);
+          scene.ops.push(o); mine.push(o);
         });
+        /* if the writing would carry on long after the sentence, write a little faster so the board keeps up with the talk */
+        const span = a - t, room = sayMs + 1400;
+        if (span > room && !mine.some(o => o.think)) {
+          const f = Math.max(0.6, room / span), at = x => t + (x - t) * f;
+          mine.forEach(o => { o.t0 = at(o.t0); o.d0 = at(o.d0); o.t1 = at(o.t1); o.dur *= f; o.lead *= f; });
+          a = at(a);
+        }
         step.t1 = Math.max(a, t + sayMs) + (st.hold === undefined ? 550 : st.hold);
         t = step.t1;
         model.steps.push(step);
@@ -234,7 +246,8 @@ const Teacher = (() => {
     return { scene: si, thinking: active && active.think ? clamp((t - active.d0) / active.dur, 0, 1) : -1 };
   }
   const stepAt = (m, t) => { let i = 0; for (let k = 0; k < m.steps.length; k++) if (t >= m.steps[k].t0) i = k; return i; };
-  function caption(step, t) {
+  function caption(step, t, part = -1) {
+    if (part >= 0 && step.parts[part]) return step.parts[part].text;
     const u = clamp((t - step.t0) / step.sayMs, 0, 0.999);
     let acc = 0;
     for (const p of step.parts) { acc += p.share; if (u < acc) return p.text; }
@@ -283,7 +296,8 @@ const Teacher = (() => {
     const el = { cover: $('.board-cover', root), end: $('.board-end', root), think: $('.think', root), ring: $('.think-ring', root), cap: $('.captions', root), scrub: $('.scrub', root),
       pp: $('.pp', root), time: $('.time', root), speed: $('[data-t=speed]', root), cc: $('[data-t=cc]', root), voice: $('[data-t=voice]', root), note: $('.voice-note', root) };
     const resume = l.tv > 0 && l.tv < M.steps.length - 1 ? M.steps[l.tv].t0 : 0;
-    P = { M, l, t: resume, playing: false, started: false, step: -1, speed: SPEEDS.includes(S.speed) ? S.speed : 1, live: false, held: 0, utter: 0, fails: 0, dead: !Voice.ok, raf: 0, last: 0, capText: null };
+    P = { M, l, t: resume, playing: false, started: false, step: -1, speed: SPEEDS.includes(S.speed) ? S.speed : 1, live: false, held: 0, utter: 0, fails: 0, dead: !Voice.ok, raf: 0, last: 0, capText: null,
+      sp: null, k: 1 };      // sp: the sentence being spoken now. k: how fast this device's voice really talks, compared with the estimate
     const me = P;
     el.scrub.innerHTML = M.scenes.map(s => `<span class="seg-t" style="flex:${Math.round(s.t1 - s.t0)}"><i></i></span>`).join('');
     $('.ch-list', root).innerHTML = M.scenes.map((s, i) => `<button type="button" class="chapter" data-ch="${i}"><span class="n">${i + 1}</span><span>${s.title}</span><small>${fmt(s.t0)}</small></button>`).join('');
@@ -305,7 +319,8 @@ const Teacher = (() => {
       chapters.forEach((c, i) => { c.classList.toggle('is-on', i === cur); c.classList.toggle('is-past', cur > i); });
       el.think.hidden = r.thinking < 0;
       if (r.thinking >= 0) el.ring.style.strokeDashoffset = ringLen * r.thinking;
-      const text = !S.cc ? 'Captions are off' : me.started ? caption(M.steps[stepAt(M, me.t)], me.t) : 'Press play and your teacher will start writing.';
+      const si = stepAt(M, me.t), part = me.live && me.sp && me.sp.step === si ? me.sp.part : -1;
+      const text = !S.cc ? 'Captions are off' : me.started ? caption(M.steps[si], me.t, part) : 'Press play and your teacher will start writing.';
       if (text !== me.capText) { me.capText = text; el.cap.textContent = text; el.cap.classList.toggle('off', !S.cc); }
     }
     function ui() {
@@ -320,14 +335,23 @@ const Teacher = (() => {
       el.voice.innerHTML = `${icon(vOn ? 'sound' : 'mute', 18)} Voice`;
       el.voice.disabled = me.dead && !Voice.ok;
     }
+    /* after each sentence, compare how long it really took with the estimate, and remember the difference */
+    const learn = (st, part, ms) => {
+      const est = st.parts[part].share * st.sayMs / me.speed;
+      if (ms > 250) me.k = clamp(me.k * 0.6 + clamp(est / ms, 0.45, 2.2) * 0.4, 0.45, 2.2);
+    };
     function speak(i) {
+      me.sp = null;
       if (!S.voice || me.dead) return;
       me.live = true; me.held = 0;
-      const mine = ++me.utter;
-      let begun = false;
-      Voice.say(M.steps[i].say, { rate: clamp(0.92 * me.speed, 0.5, 2), onstart: () => { begun = true; }, onend: () => { if (mine === me.utter) me.live = false; } });
+      const mine = ++me.utter, st = M.steps[i], sp = me.sp = { step: i, part: -1, at: 0, wait: 0, done: false };
+      Voice.sayAll(st.parts.map(p => p.text), {
+        rate: clamp(0.92 * me.speed, 0.5, 2),
+        onpart: k => { if (mine !== me.utter) return; const now = performance.now(); if (sp.part >= 0) learn(st, sp.part, now - sp.at); sp.part = k; sp.at = now; },
+        onend: () => { if (mine !== me.utter) return; if (sp.part >= 0) learn(st, sp.part, performance.now() - sp.at); sp.done = true; me.live = false; },
+      });
       setTimeout(() => {   // some browsers never start speaking inside an embedded page: fall back to captions
-        let talking = begun;
+        let talking = sp.part >= 0;
         try { talking = talking || speechSynthesis.speaking; } catch (e) { }
         if (mine === me.utter && !talking) { me.live = false; if (++me.fails >= 2) { me.dead = true; el.note.textContent = 'The reading voice did not start here, so captions show every word.'; ui(); } }
       }, 1900);
@@ -337,12 +361,30 @@ const Teacher = (() => {
       const dt = Math.min(120, now - me.last); me.last = now;
       const si = stepAt(M, me.t);
       if (si !== me.step) { me.step = si; speak(si); }
+      const st = M.steps[si], sp = me.sp && me.sp.step === si ? me.sp : null, local = me.t - st.t0;
       let nt = me.t + dt * me.speed;
-      const st = M.steps[si];
-      if (me.live && nt >= st.t1 - 40) {      // the teacher is still talking: wait for the sentence to finish
-        nt = Math.max(me.t, st.t1 - 40); me.held += dt;
-        if (me.held > 7000) me.live = false;
-      } else me.held = 0;
+      if (me.live && sp) {
+        if (sp.part < 0) {                     // the voice has not started yet: wait for it, so the pen does not start early
+          sp.wait += dt;
+          let talking = false;
+          try { talking = speechSynthesis.speaking; } catch (e) { }
+          if (sp.wait > 1500 && talking) { sp.part = 0; sp.at = now; }   // this browser does not report when speech starts
+          nt = sp.wait > 1500 ? nt : me.t;
+        }
+        if (sp.part >= 0) {                    // follow the sentence being spoken: catch up quickly, never run ahead of it
+          const p = st.parts[sp.part], est = p.share * st.sayMs;
+          const u = Math.min(0.96, (now - sp.at) * me.k * me.speed / est);
+          const target = 260 + (p.cum + p.share * u) * (st.sayMs - 260);
+          nt = st.t0 + Math.max(local, Math.min(target, local + dt * me.speed * 2.5));
+        }
+        if (nt >= st.t1 - 40) {                // the teacher is still talking: wait for the sentence to finish
+          nt = Math.max(me.t, st.t1 - 40); me.held += dt;
+          if (me.held > 7000) me.live = false;
+        } else me.held = 0;
+      } else {
+        me.held = 0;
+        if (sp && sp.done && local < st.sayMs) nt = me.t + dt * me.speed * 3;   // the voice finished early: catch the board up, no silent gap
+      }
       me.t = nt;
       if (me.t >= M.total) { me.t = M.total; me.playing = false; l.tv = 0; save(); Voice.stop(); ui(); }
       draw();
